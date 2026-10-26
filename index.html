@@ -169,7 +169,7 @@
   .dist.right { background: rgba(var(--ok),.14); color: #2a6b3d; font-weight: 700; }
   .dist.top { box-shadow: inset 0 0 0 1.5px rgba(var(--ng),.55); color: #9a3027; font-weight: 700; }
   /* 영상 위 자막 (접근성) */
-  .cc-box { position: absolute; left: 0; right: 0; bottom: 11%; display: flex; justify-content: center; padding: 0 6%; pointer-events: none; z-index: 5; text-align: center; }
+  .cc-box { position: absolute; left: 0; right: 0; bottom: 11%; display: flex; justify-content: center; padding: 0 6%; pointer-events: none; z-index: 7; text-align: center; }
   .tab-btn[aria-pressed="true"] { background: var(--face); color: var(--ink); box-shadow: var(--raise-sm); }
   .cc-box span { white-space: pre-line; background: rgba(0,0,0,.74); color: #fff; border-radius: .45rem; padding: .2em .6em; line-height: 1.5; font-weight: 500;
     -webkit-box-decoration-break: clone; box-decoration-break: clone; }
@@ -227,6 +227,47 @@
       animation: sheetUp .26s cubic-bezier(.2,.8,.2,1); box-shadow: 0 -16px 40px -16px rgba(0,0,0,.4), inset 0 1px 0 #fff; }
     .sheet-grip { display: block; width: 2.6rem; height: .3rem; border-radius: 9999px; background: rgba(0,0,0,.16); margin: 0 auto .9rem; }
   }
+  /* 자막 위치: 영상 하단(기본) · 중앙 · 상단 · 영상 밖 아래 */
+  .cc-box.pos-center { bottom: auto; top: 50%; transform: translateY(-50%); }
+  .cc-box.pos-top { bottom: auto; top: 6%; }
+  .cc-out { margin-top: .5rem; min-height: 2.9em; display: flex; align-items: center; justify-content: center; text-align: center; padding: .45em 1em;
+    border-radius: 1rem; background: #1d1d1f; color: #fff; line-height: 1.5; font-weight: 500; white-space: pre-line; box-shadow: var(--raise-sm); }
+  .cc-out.cc-s { font-size: 13px; } .cc-out.cc-m { font-size: 15px; } .cc-out.cc-l { font-size: 19px; }
+  /* 핵심 표시: 영상 위 모션 그래픽 오버레이 */
+  .hl-layer { position: absolute; inset: 0; pointer-events: none; z-index: 6; overflow: hidden; }
+  .hl { position: absolute; color: #fff; font-family: 'Noto Sans KR', Inter, sans-serif; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  .hl b { display: block; font-weight: 800; letter-spacing: -.01em; line-height: 1.25; }
+  .hl small { display: block; font-size: .62em; font-weight: 500; opacity: .88; margin-top: .3em; line-height: 1.4; }
+  .hl-lower { left: 4%; bottom: 24%; max-width: 62%; padding: .55em 1.1em .6em 1.25em; border-radius: .6em; background: rgba(20,20,24,.84);
+    box-shadow: 0 14px 30px -12px rgba(0,0,0,.7); font-size: clamp(12px, 2.1vw, 24px); animation: hlLowerIn .75s cubic-bezier(.2,.9,.2,1) both; }
+  .hl-lower::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: .28em; border-radius: .6em 0 0 .6em; background: rgb(var(--accent));
+    transform-origin: top; animation: hlBar .5s .2s cubic-bezier(.2,.9,.2,1) both; }
+  .hl-lower b { animation: hlRise .5s .25s both; } .hl-lower small { animation: hlRise .5s .4s both; }
+  .hl-center { left: 8%; right: 8%; top: 50%; transform: translateY(-50%); width: fit-content; margin: 0 auto; text-align: center; padding: .75em 1.4em; border-radius: 1em;
+    background: rgba(20,20,24,.62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); font-size: clamp(16px, 3.6vw, 44px);
+    animation: hlPop .7s cubic-bezier(.2,1.35,.3,1) both; }
+  .hl-center b { background: linear-gradient(100deg, #fff 30%, #a9c8ff 50%, #fff 70%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text;
+    color: transparent; animation: hlShine 2.6s .7s ease-in-out infinite; }
+  .hl-top { left: 0; right: 0; top: 0; padding: .7em 5% 1.6em; background: linear-gradient(180deg, rgba(20,20,24,.88), rgba(20,20,24,0));
+    font-size: clamp(12px, 2vw, 24px); animation: hlDrop .6s cubic-bezier(.2,.9,.2,1) both; }
+  .hl-tag { right: 3.5%; top: 7%; max-width: 46%; padding: .45em 1em; border-radius: 9999px; background: rgb(var(--accent)); font-size: clamp(11px, 1.7vw, 19px);
+    animation: hlTag .65s cubic-bezier(.2,1.5,.3,1) both, hlPulse 2s .7s ease-out infinite; }
+  .hl-tag small { display: none; }
+  .hl.out { animation: hlOut .42s ease-in forwards !important; }
+  .hl.out * { animation: none !important; }
+  @keyframes hlLowerIn { from { opacity: 0; transform: translateX(-28px); clip-path: inset(0 100% 0 0 round .6em); } to { opacity: 1; transform: none; clip-path: inset(0 0 0 0 round .6em); } }
+  @keyframes hlBar { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  @keyframes hlRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes hlPop { 0% { opacity: 0; transform: translateY(-50%) scale(.72); filter: blur(8px); } 100% { opacity: 1; transform: translateY(-50%) scale(1); filter: none; } }
+  @keyframes hlShine { 0%, 100% { background-position: 100% 0; } 50% { background-position: 0 0; } }
+  @keyframes hlDrop { from { opacity: 0; transform: translateY(-100%); } to { opacity: 1; transform: none; } }
+  @keyframes hlTag { from { opacity: 0; transform: translateY(-14px) scale(.6); } to { opacity: 1; transform: none; } }
+  @keyframes hlPulse { 0% { box-shadow: 0 0 0 0 rgba(var(--accent),.55); } 70%, 100% { box-shadow: 0 0 0 .7em rgba(var(--accent),0); } }
+  @keyframes hlOut { to { opacity: 0; filter: blur(4px); } }
+  @keyframes hlFade { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .hl { animation: hlFade .3s both !important; } .hl *, .hl::before { animation: none !important; } }
+  .mk-hl { top: 0; }
+  .mk-hl::before { content: '★'; font-size: .8rem; line-height: 1; color: rgb(var(--accent)); }
   /* 퀴즈 창을 영상 위에 겹쳐 보이기 (넓은 화면 · 플레이어 전체 화면) */
   .modal-back.in-player { position: absolute; inset: 0; z-index: 30; align-items: center; padding: clamp(.4rem, 2.2%, 1.25rem);
     background: rgba(24,24,27,.55); border-radius: inherit; }
@@ -246,7 +287,7 @@
   @media (prefers-reduced-motion: reduce) { .sheet, .flash { animation: none; } .note-list, .cue-list { scroll-behavior: auto; } }
   [hidden] { display: none !important; }
 </style>
-<style id="twCss">*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.16 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:Inter,Noto Sans KR,system-ui,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.container{width:100%}@media (min-width:640px){.container{max-width:640px}}@media (min-width:768px){.container{max-width:768px}}@media (min-width:1024px){.container{max-width:1024px}}@media (min-width:1280px){.container{max-width:1280px}}@media (min-width:1536px){.container{max-width:1536px}}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}.collapse{visibility:collapse}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.z-10{z-index:10}.col-span-2{grid-column:span 2/span 2}.-m-1{margin:-.25rem}.mx-auto{margin-left:auto;margin-right:auto}.-mt-1{margin-top:-.25rem}.mb-1\.5{margin-bottom:.375rem}.mb-2{margin-bottom:.5rem}.ml-1{margin-left:.25rem}.ml-auto{margin-left:auto}.mr-1{margin-right:.25rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.grid{display:grid}.contents{display:contents}.hidden{display:none}.\!h-6{height:1.5rem!important}.\!h-7{height:1.75rem!important}.h-10{height:2.5rem}.h-12{height:3rem}.h-2{height:.5rem}.h-4{height:1rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-full{height:100%}.max-h-\[16rem\]{max-height:16rem}.max-h-\[20rem\]{max-height:20rem}.max-h-\[22rem\]{max-height:22rem}.min-h-\[6rem\]{min-height:6rem}.min-h-screen{min-height:100vh}.\!w-6{width:1.5rem!important}.\!w-7{width:1.75rem!important}.\!w-\[5\.6rem\]{width:5.6rem!important}.\!w-\[5rem\]{width:5rem!important}.\!w-auto{width:auto!important}.w-10{width:2.5rem}.w-12{width:3rem}.w-14{width:3.5rem}.w-2{width:.5rem}.w-4{width:1rem}.w-6{width:1.5rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-\[2\.4rem\]{width:2.4rem}.w-\[4\.6rem\]{width:4.6rem}.w-\[9\.5rem\]{width:9.5rem}.w-\[9rem\]{width:9rem}.w-fit{width:-moz-fit-content;width:fit-content}.w-full{width:100%}.min-w-0{min-width:0}.min-w-\[12rem\]{min-width:12rem}.min-w-\[8rem\]{min-width:8rem}.\!max-w-\[32rem\]{max-width:32rem!important}.max-w-7xl{max-width:80rem}.max-w-\[12rem\]{max-width:12rem}.max-w-\[14rem\]{max-width:14rem}.max-w-\[16rem\]{max-width:16rem}.max-w-\[22rem\]{max-width:22rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.basis-40{flex-basis:10rem}.basis-60{flex-basis:15rem}.table-fixed{table-layout:fixed}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.resize-none{resize:none}.resize-y{resize:vertical}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-cols-\[minmax\(0\2c 1fr\)_auto\]{grid-template-columns:minmax(0,1fr) auto}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.gap-x-3{-moz-column-gap:.75rem;column-gap:.75rem}.gap-x-4{-moz-column-gap:1rem;column-gap:1rem}.gap-y-1{row-gap:.25rem}.gap-y-2{row-gap:.5rem}.space-y-0\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.125rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.125rem*var(--tw-space-y-reverse))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.space-y-8>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem*var(--tw-space-y-reverse))}.self-center{align-self:center}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.overflow-x-hidden{overflow-x:hidden}.truncate{overflow:hidden;text-overflow:ellipsis}.truncate,.whitespace-nowrap{white-space:nowrap}.whitespace-pre-wrap{white-space:pre-wrap}.break-words{overflow-wrap:break-word}.break-all{word-break:break-all}.\!rounded-none{border-radius:0!important}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-\[1\.4rem\]{border-radius:1.4rem}.rounded-\[1\.6rem\]{border-radius:1.6rem}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:.75rem}.\!border-0{border-width:0!important}.border{border-width:1px}.\!border-x-0{border-left-width:0!important;border-right-width:0!important}.\!border-b-0{border-bottom-width:0!important}.\!border-t-0{border-top-width:0!important}.border-t{border-top-width:1px}.border-black\/\[0\.06\]{border-color:rgba(0,0,0,.06)}.bg-\[\#1d1d1f\]\/90{background-color:rgba(29,29,31,.9)}.bg-\[\#2f7bf6\]{--tw-bg-opacity:1;background-color:rgb(47 123 246/var(--tw-bg-opacity,1))}.bg-\[\#3f9c5a\]{--tw-bg-opacity:1;background-color:rgb(63 156 90/var(--tw-bg-opacity,1))}.bg-\[\#e4e4e3\]{--tw-bg-opacity:1;background-color:rgb(228 228 227/var(--tw-bg-opacity,1))}.bg-\[rgba\(47\2c 123\2c 246\2c \.06\)\]{background-color:rgba(47,123,246,.06)}.bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0/var(--tw-bg-opacity,1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.p-1{padding:.25rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.\!px-2{padding-left:.5rem!important;padding-right:.5rem!important}.\!px-3{padding-left:.75rem!important;padding-right:.75rem!important}.\!py-1\.5{padding-top:.375rem!important;padding-bottom:.375rem!important}.\!py-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.px-0{padding-left:0;padding-right:0}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-8{padding-top:2rem;padding-bottom:2rem}.\!pb-0{padding-bottom:0!important}.\!pl-3{padding-left:.75rem!important}.pb-4{padding-bottom:1rem}.pr-1{padding-right:.25rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-disp{font-family:Inter,Noto Sans KR,sans-serif}.font-sans{font-family:Inter,Noto Sans KR,system-ui,sans-serif}.\!text-xs{font-size:.75rem!important;line-height:1rem!important}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[12px\]{font-size:12px}.text-\[13px\]{font-size:13px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.tabular-nums{--tw-numeric-spacing:tabular-nums;font-variant-numeric:var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction)}.leading-6{line-height:1.5rem}.leading-none{line-height:1}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-\[0\.3em\]{letter-spacing:.3em}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.\!text-ink{--tw-text-opacity:1!important;color:rgb(29 29 31/var(--tw-text-opacity,1))!important}.text-\[\#4a4a50\]{--tw-text-opacity:1;color:rgb(74 74 80/var(--tw-text-opacity,1))}.text-\[\#5e5e64\]{--tw-text-opacity:1;color:rgb(94 94 100/var(--tw-text-opacity,1))}.text-\[\#9a3027\]{--tw-text-opacity:1;color:rgb(154 48 39/var(--tw-text-opacity,1))}.text-\[\#d0544a\]{--tw-text-opacity:1;color:rgb(208 84 74/var(--tw-text-opacity,1))}.text-ink{--tw-text-opacity:1;color:rgb(29 29 31/var(--tw-text-opacity,1))}.text-mute{--tw-text-opacity:1;color:rgb(119 119 125/var(--tw-text-opacity,1))}.text-white\/90{color:hsla(0,0%,100%,.9)}.underline{text-decoration-line:underline}.underline-offset-2{text-underline-offset:2px}.underline-offset-4{text-underline-offset:4px}.accent-\[\#2f7bf6\]{accent-color:#2f7bf6}.\!shadow-none{--tw-shadow:0 0 #0000!important;--tw-shadow-colored:0 0 #0000!important;box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)!important}.shadow{--tw-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color),0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.outline{outline-style:solid}.blur{--tw-blur:blur(8px)}.blur,.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-filter{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.\[mm\:ss\]{mm:ss}.hover\:bg-\[\#f6f6f5\]:hover{--tw-bg-opacity:1;background-color:rgb(246 246 245/var(--tw-bg-opacity,1))}.hover\:text-\[\#d0544a\]:hover{--tw-text-opacity:1;color:rgb(208 84 74/var(--tw-text-opacity,1))}@media (min-width:640px){.sm\:inline{display:inline}.sm\:inline-flex{display:inline-flex}.sm\:max-h-\[18rem\]{max-height:18rem}.sm\:w-12,.sm\:w-\[3rem\]{width:3rem}.sm\:w-\[7\.5rem\]{width:7.5rem}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:justify-between{justify-content:space-between}.sm\:gap-3{gap:.75rem}.sm\:p-4{padding:1rem}.sm\:p-5{padding:1.25rem}.sm\:p-6{padding:1.5rem}.sm\:p-8{padding:2rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:py-5{padding-top:1.25rem;padding-bottom:1.25rem}.sm\:py-8{padding-top:2rem;padding-bottom:2rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-xs{font-size:.75rem;line-height:1rem}}@media (min-width:768px){.md\:flex{display:flex}.md\:hidden{display:none}.md\:grid-cols-\[1fr_auto_1fr\]{grid-template-columns:1fr auto 1fr}.md\:flex-row{flex-direction:row}}@media (min-width:1024px){.lg\:sticky{position:sticky}.lg\:top-4{top:1rem}.lg\:col-span-2{grid-column:span 2/span 2}.lg\:max-h-\[calc\(100vh-24rem\)\]{max-height:calc(100vh - 24rem)}.lg\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.lg\:grid-cols-6{grid-template-columns:repeat(6,minmax(0,1fr))}.lg\:grid-cols-\[minmax\(0\2c 1fr\)_minmax\(0\2c 1\.3fr\)_minmax\(0\2c 1\.2fr\)\]{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.2fr)}.lg\:grid-cols-\[minmax\(0\2c 8fr\)_minmax\(0\2c 4fr\)\]{grid-template-columns:minmax(0,8fr) minmax(0,4fr)}.lg\:gap-8{gap:2rem}}</style>
+<style id="twCss">*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.16 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:Inter,Noto Sans KR,system-ui,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.container{width:100%}@media (min-width:640px){.container{max-width:640px}}@media (min-width:768px){.container{max-width:768px}}@media (min-width:1024px){.container{max-width:1024px}}@media (min-width:1280px){.container{max-width:1280px}}@media (min-width:1536px){.container{max-width:1536px}}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}.collapse{visibility:collapse}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.z-10{z-index:10}.col-span-2{grid-column:span 2/span 2}.-m-1{margin:-.25rem}.mx-auto{margin-left:auto;margin-right:auto}.-mt-1{margin-top:-.25rem}.mb-1\.5{margin-bottom:.375rem}.mb-2{margin-bottom:.5rem}.ml-1{margin-left:.25rem}.ml-auto{margin-left:auto}.mr-1{margin-right:.25rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.grid{display:grid}.contents{display:contents}.hidden{display:none}.\!h-6{height:1.5rem!important}.\!h-7{height:1.75rem!important}.h-10{height:2.5rem}.h-12{height:3rem}.h-2{height:.5rem}.h-4{height:1rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-full{height:100%}.max-h-\[16rem\]{max-height:16rem}.max-h-\[20rem\]{max-height:20rem}.max-h-\[22rem\]{max-height:22rem}.min-h-\[6rem\]{min-height:6rem}.min-h-screen{min-height:100vh}.\!w-6{width:1.5rem!important}.\!w-7{width:1.75rem!important}.\!w-\[3\.8rem\]{width:3.8rem!important}.\!w-\[5\.6rem\]{width:5.6rem!important}.\!w-\[5rem\]{width:5rem!important}.\!w-auto{width:auto!important}.w-10{width:2.5rem}.w-12{width:3rem}.w-14{width:3.5rem}.w-2{width:.5rem}.w-4{width:1rem}.w-6{width:1.5rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-\[2\.4rem\]{width:2.4rem}.w-\[4\.6rem\]{width:4.6rem}.w-\[9\.5rem\]{width:9.5rem}.w-\[9rem\]{width:9rem}.w-fit{width:-moz-fit-content;width:fit-content}.w-full{width:100%}.min-w-0{min-width:0}.min-w-\[12rem\]{min-width:12rem}.min-w-\[8rem\]{min-width:8rem}.\!max-w-\[32rem\]{max-width:32rem!important}.max-w-7xl{max-width:80rem}.max-w-\[12rem\]{max-width:12rem}.max-w-\[14rem\]{max-width:14rem}.max-w-\[16rem\]{max-width:16rem}.max-w-\[22rem\]{max-width:22rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.basis-40{flex-basis:10rem}.basis-60{flex-basis:15rem}.table-fixed{table-layout:fixed}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.resize-none{resize:none}.resize-y{resize:vertical}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-cols-\[minmax\(0\2c 1fr\)_auto\]{grid-template-columns:minmax(0,1fr) auto}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.gap-x-3{-moz-column-gap:.75rem;column-gap:.75rem}.gap-x-4{-moz-column-gap:1rem;column-gap:1rem}.gap-y-1{row-gap:.25rem}.gap-y-2{row-gap:.5rem}.space-y-0\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.125rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.125rem*var(--tw-space-y-reverse))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.space-y-8>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem*var(--tw-space-y-reverse))}.self-center{align-self:center}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.overflow-x-hidden{overflow-x:hidden}.truncate{overflow:hidden;text-overflow:ellipsis}.truncate,.whitespace-nowrap{white-space:nowrap}.whitespace-pre-wrap{white-space:pre-wrap}.break-words{overflow-wrap:break-word}.break-all{word-break:break-all}.\!rounded-none{border-radius:0!important}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-\[1\.4rem\]{border-radius:1.4rem}.rounded-\[1\.6rem\]{border-radius:1.6rem}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:.75rem}.\!border-0{border-width:0!important}.border{border-width:1px}.\!border-x-0{border-left-width:0!important;border-right-width:0!important}.\!border-b-0{border-bottom-width:0!important}.\!border-t-0{border-top-width:0!important}.border-t{border-top-width:1px}.border-black\/\[0\.06\]{border-color:rgba(0,0,0,.06)}.bg-\[\#1d1d1f\]\/90{background-color:rgba(29,29,31,.9)}.bg-\[\#2f7bf6\]{--tw-bg-opacity:1;background-color:rgb(47 123 246/var(--tw-bg-opacity,1))}.bg-\[\#3f9c5a\]{--tw-bg-opacity:1;background-color:rgb(63 156 90/var(--tw-bg-opacity,1))}.bg-\[\#e4e4e3\]{--tw-bg-opacity:1;background-color:rgb(228 228 227/var(--tw-bg-opacity,1))}.bg-\[rgba\(47\2c 123\2c 246\2c \.06\)\]{background-color:rgba(47,123,246,.06)}.bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0/var(--tw-bg-opacity,1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.p-1{padding:.25rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.\!px-2{padding-left:.5rem!important;padding-right:.5rem!important}.\!px-3{padding-left:.75rem!important;padding-right:.75rem!important}.\!py-1\.5{padding-top:.375rem!important;padding-bottom:.375rem!important}.\!py-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.px-0{padding-left:0;padding-right:0}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-8{padding-top:2rem;padding-bottom:2rem}.\!pb-0{padding-bottom:0!important}.\!pl-3{padding-left:.75rem!important}.pb-4{padding-bottom:1rem}.pr-1{padding-right:.25rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-disp{font-family:Inter,Noto Sans KR,sans-serif}.font-sans{font-family:Inter,Noto Sans KR,system-ui,sans-serif}.\!text-xs{font-size:.75rem!important;line-height:1rem!important}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[12px\]{font-size:12px}.text-\[13px\]{font-size:13px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.tabular-nums{--tw-numeric-spacing:tabular-nums;font-variant-numeric:var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction)}.leading-6{line-height:1.5rem}.leading-none{line-height:1}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-\[0\.3em\]{letter-spacing:.3em}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.\!text-ink{--tw-text-opacity:1!important;color:rgb(29 29 31/var(--tw-text-opacity,1))!important}.text-\[\#4a4a50\]{--tw-text-opacity:1;color:rgb(74 74 80/var(--tw-text-opacity,1))}.text-\[\#5e5e64\]{--tw-text-opacity:1;color:rgb(94 94 100/var(--tw-text-opacity,1))}.text-\[\#9a3027\]{--tw-text-opacity:1;color:rgb(154 48 39/var(--tw-text-opacity,1))}.text-\[\#d0544a\]{--tw-text-opacity:1;color:rgb(208 84 74/var(--tw-text-opacity,1))}.text-ink{--tw-text-opacity:1;color:rgb(29 29 31/var(--tw-text-opacity,1))}.text-mute{--tw-text-opacity:1;color:rgb(119 119 125/var(--tw-text-opacity,1))}.text-white\/90{color:hsla(0,0%,100%,.9)}.underline{text-decoration-line:underline}.underline-offset-2{text-underline-offset:2px}.underline-offset-4{text-underline-offset:4px}.accent-\[\#2f7bf6\]{accent-color:#2f7bf6}.\!shadow-none{--tw-shadow:0 0 #0000!important;--tw-shadow-colored:0 0 #0000!important;box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)!important}.shadow{--tw-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color),0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.outline{outline-style:solid}.blur{--tw-blur:blur(8px)}.blur,.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-filter{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.ease-in{transition-timing-function:cubic-bezier(.4,0,1,1)}.ease-in-out{transition-timing-function:cubic-bezier(.4,0,.2,1)}.ease-out{transition-timing-function:cubic-bezier(0,0,.2,1)}.\[mm\:ss\]{mm:ss}.hover\:bg-\[\#f6f6f5\]:hover{--tw-bg-opacity:1;background-color:rgb(246 246 245/var(--tw-bg-opacity,1))}.hover\:text-\[\#d0544a\]:hover{--tw-text-opacity:1;color:rgb(208 84 74/var(--tw-text-opacity,1))}@media (min-width:640px){.sm\:inline{display:inline}.sm\:inline-flex{display:inline-flex}.sm\:max-h-\[18rem\]{max-height:18rem}.sm\:w-12,.sm\:w-\[3rem\]{width:3rem}.sm\:w-\[7\.5rem\]{width:7.5rem}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:justify-between{justify-content:space-between}.sm\:gap-3{gap:.75rem}.sm\:p-4{padding:1rem}.sm\:p-5{padding:1.25rem}.sm\:p-6{padding:1.5rem}.sm\:p-8{padding:2rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:py-5{padding-top:1.25rem;padding-bottom:1.25rem}.sm\:py-8{padding-top:2rem;padding-bottom:2rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-xs{font-size:.75rem;line-height:1rem}}@media (min-width:768px){.md\:flex{display:flex}.md\:hidden{display:none}.md\:grid-cols-\[1fr_auto_1fr\]{grid-template-columns:1fr auto 1fr}.md\:flex-row{flex-direction:row}}@media (min-width:1024px){.lg\:sticky{position:sticky}.lg\:top-4{top:1rem}.lg\:col-span-2{grid-column:span 2/span 2}.lg\:max-h-\[calc\(100vh-24rem\)\]{max-height:calc(100vh - 24rem)}.lg\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.lg\:grid-cols-6{grid-template-columns:repeat(6,minmax(0,1fr))}.lg\:grid-cols-\[minmax\(0\2c 1fr\)_minmax\(0\2c 1\.3fr\)_minmax\(0\2c 1\.2fr\)\]{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.2fr)}.lg\:grid-cols-\[minmax\(0\2c 8fr\)_minmax\(0\2c 4fr\)\]{grid-template-columns:minmax(0,8fr) minmax(0,4fr)}.lg\:gap-8{gap:2rem}}</style>
 </head>
 <body class="font-sans min-h-screen overflow-x-hidden">
 <template id="appTpl">
@@ -389,9 +430,11 @@
         <div id="playerBox" class="player-box">
           <div id="ytWrap" class="absolute inset-0"><div id="ytHost"></div></div>
           <video id="vfile" class="hidden absolute inset-0 w-full h-full bg-black" controls playsinline preload="metadata"></video>
+          <div id="hlLayer" class="hl-layer" aria-live="polite"></div>
           <div id="ccBox" class="cc-box cc-m hidden" aria-hidden="true"><span id="ccText"></span></div>
           <div id="playerMsg" class="hidden absolute inset-0 flex flex-col items-center justify-center gap-3 p-5 sm:p-8 text-center text-white/90 text-xs sm:text-sm leading-relaxed bg-[#1d1d1f]/90"></div>
         </div>
+        <div id="ccOut" class="hidden cc-out cc-m" aria-hidden="true"></div>
       </div>
 
       <div class="glass rounded-[2rem] p-4 sm:p-6 space-y-4">
@@ -418,7 +461,7 @@
           <span id="tDur" class="w-10 sm:w-12">00:00</span>
         </div>
         <p class="legend flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] text-mute -mt-1">
-          <span><i>◆</i> 퀴즈 <span id="lgQuiz" class="font-disp"></span></span><span><i>▲</i> 북마크 <span id="lgBook" class="font-disp"></span></span><span><i>●</i> 노트 <span id="lgNote" class="font-disp"></span></span><span><i>✕</i> 이해 안 됨 <span id="lgConf" class="font-disp"></span></span><span><i>?</i> 질문 <span id="lgAsk" class="font-disp"></span></span><span><i>■</i> 설명 카드</span><span>막대를 눌러 이동</span>
+          <span><i>◆</i> 퀴즈 <span id="lgQuiz" class="font-disp"></span></span><span><i>▲</i> 북마크 <span id="lgBook" class="font-disp"></span></span><span><i>●</i> 노트 <span id="lgNote" class="font-disp"></span></span><span><i>✕</i> 이해 안 됨 <span id="lgConf" class="font-disp"></span></span><span><i>?</i> 질문 <span id="lgAsk" class="font-disp"></span></span><span><i>■</i> 설명 카드</span><span><i>★</i> 핵심 <span id="lgHl" class="font-disp"></span></span><span>막대를 눌러 이동</span>
         </p>
 
         <div class="flex flex-wrap items-center gap-2">
@@ -439,6 +482,11 @@
           <button id="askBtn" type="button" class="pill h-10 px-3 text-xs whitespace-nowrap" title="지금 시점에 대한 질문을 남깁니다 (단축키 Q)">💬 질문</button>
           <button id="ccBtn" type="button" class="pill h-10 px-3 text-xs font-disp font-semibold" aria-pressed="false" title="자막을 영상 위에 표시">CC 자막</button>
           <button id="ccSize" type="button" class="pill h-10 px-3 text-xs whitespace-nowrap" title="영상 위 자막 글자 크기">글자 <b id="ccSizeLabel" class="font-disp">보통</b></button>
+          <label class="flex items-center gap-1.5 text-xs font-bold whitespace-nowrap">위치
+            <select id="ccPos" class="field !w-auto !py-1.5 !pl-3 !text-xs" aria-label="자막 위치">
+              <option value="bottom">영상 하단</option><option value="center">영상 중앙</option><option value="top">영상 상단</option><option value="out">영상 밖 아래</option>
+            </select></label>
+          <button id="hlBtn" type="button" class="pill h-10 px-3 text-xs whitespace-nowrap" aria-pressed="true" title="핵심 내용을 영상 위에 모션 그래픽으로 표시">✨ 핵심 표시</button>
           <button id="fsBtn" type="button" class="pill h-10 px-3 text-xs whitespace-nowrap" title="전체 화면에서도 퀴즈·자막이 보입니다">⛶ 전체 화면</button>
           <button id="endBtn" type="button" class="pill h-10 px-3 text-xs whitespace-nowrap" title="점수·다시 볼 구간·노트 정리">🏁 마무리</button>
         </div>
@@ -458,6 +506,7 @@
           <div class="flex flex-wrap gap-2">
             <button id="addQuizHere" type="button" class="pill pill-dark px-4 py-2 text-xs">◆ 여기에 퀴즈 추가</button>
             <button id="addBookHere" type="button" class="pill px-4 py-2 text-xs">▲ 여기에 북마크 추가</button>
+            <button id="addHlHere" type="button" class="pill px-4 py-2 text-xs">★ 여기에 핵심 표시 추가</button>
           </div>
           <label class="flex items-center justify-between gap-3 cursor-pointer">
             <span class="text-xs font-bold">🚫 건너뛰기 막기 <span class="font-normal text-mute">— 학생이 진행 막대를 끌어 퀴즈를 지나치면 그 퀴즈로 되돌립니다</span></span>
@@ -657,9 +706,17 @@
           </div>
           <div class="flex flex-wrap gap-2">
             <button id="trBtn" type="button" class="pill pill-dark flex-1 px-4 py-2.5 text-xs whitespace-nowrap">🌐 AI로 자막 번역</button>
+            <button id="trStop" type="button" class="hidden pill pill-danger px-4 py-2.5 text-xs whitespace-nowrap">⏹ 번역 멈추기</button>
             <button id="trSrt" type="button" class="pill px-4 py-2.5 text-xs whitespace-nowrap">번역 SRT ↓</button>
             <button id="trClear" type="button" class="pill pill-danger px-4 py-2.5 text-xs whitespace-nowrap">번역 지우기</button>
           </div>
+          <div id="trProg" class="hidden space-y-1">
+            <div class="meter"><i id="trBar" style="width:0%"></i></div>
+            <p id="trProgText" class="text-[11px] font-disp text-mute" role="status" aria-live="polite"></p>
+          </div>
+          <label class="flex items-center justify-between gap-3 cursor-pointer">
+            <span class="text-[11px] font-bold">⚡ 빠른 모델로 번역 <span class="font-normal text-mute">(선택)</span> <span id="trFastName" class="font-normal text-mute"></span></span>
+            <input id="trFast" type="checkbox" class="switch"></label>
           <p id="trInfo" class="text-[11px] text-mute leading-relaxed"></p>
         </div>
         <div class="sunk rounded-[1.4rem] p-3 sm:p-4 space-y-3">
@@ -709,6 +766,20 @@
       <div id="bookSec" class="space-y-3">
         <div class="sec-head">🔖 BOOKMARKS <small>—— 구간 · 챕터</small><span class="ml-auto font-disp text-xs shrink-0">BOOK <b id="bCount">0</b></span></div>
         <div id="bEditor" class="space-y-2"></div>
+      </div>
+
+      <!-- 핵심 표시 (모션 오버레이) -->
+      <div id="hlSec" class="space-y-3">
+        <div class="sec-head">✨ HIGHLIGHTS <small>—— 핵심 내용을 영상 위에 모션 그래픽으로</small><span class="ml-auto font-disp text-xs shrink-0">KEY <b id="hlCount">0</b></span></div>
+        <div id="hlTools" class="space-y-3">
+          <div class="flex flex-wrap gap-2">
+            <button id="addHlBtn" type="button" class="pill px-4 py-2 text-xs">★ 현재 시각에 핵심 표시 추가</button>
+            <button id="aiHl" type="button" class="pill pill-dark px-4 py-2 text-xs">🤖 AI로 핵심 추출 (자막)</button>
+          </div>
+          <p class="text-[11px] text-mute leading-relaxed">모양: <b class="text-ink">아래 띠</b>(왼쪽 아래에서 밀려 나옴) · <b class="text-ink">가운데 카드</b>(크게 튀어나오며 빛남) · <b class="text-ink">위 배너</b>(위에서 내려옴) · <b class="text-ink">모서리 태그</b>(오른쪽 위에서 맥박처럼 강조). 학생용 HTML·공유 링크에도 담깁니다.</p>
+          <p id="hlMsg" class="hidden rounded-2xl px-3 py-2 text-[11px] leading-relaxed" role="status"></p>
+          <div id="hlEditor" class="space-y-2"></div>
+        </div>
       </div>
     </section>
   </div>
@@ -880,6 +951,8 @@
 
 <script id="appMain">
 // 화면·저장 파일에 표시되는 앱 버전. 수정할 때마다 올림: 새 기능 → 둘째 자리, 고침·디자인 → 셋째 자리
+// v1.9.0  핵심 표시(영상 위 모션 그래픽 오버레이: 아래 띠·가운데 카드·위 배너·모서리 태그, AI 추출), 자막 위치(하단·중앙·상단·영상 밖 아래)
+// v1.8.4  자막 번역은 AI SETTING의 키·모델을 그대로 사용(빠른 모델은 선택), IndexedDB가 응답하지 않으면 3초 뒤 localStorage로 넘어가 앱이 멈추지 않게 함 · 자막 번역 개선: 20문장 묶음 3개 동시 요청, 90초 제한·2번 재시도, 문장 수·경과 시간 진행 표시, 번역 멈추기·이어서 번역, 번역용 빠른 모델
 // v1.8.3  모델 목록 최신화(Gemini 4 Argon·3.8 Flash 등, GPT-6 계열, Claude Fable 5.1), 종료된 예전 기본 모델 자동 교체
 // v1.8.2  Youtube Subtitle Builder 다운로드 링크 교체(RIMEv)
 // v1.8.1  히스토리가 안 보이던 문제: 저장이 막힌 화면 안내·메모리 백업/복원, 시작 직후 저장 시 빈 목록으로 덮어쓰기 방지
@@ -901,7 +974,7 @@
 // v1.2.0  STEP 3 편집 모드/시청 모드, 퀴즈 4유형·힌트·통과 조건, 건너뛰기 막기, 자막 표시·검색, AI 요약·챕터, 속도·구간 반복·단축키
 // v1.1.0  STEP 2 AI 연결(Claude·OpenAI·Gemini, 연결 확인·모델 제안), 자막 기반 AI 퀴즈 배치, 키·강의 정보 저장, 접기·펼치기
 // v1.0.0  STEP 1 기본 골격: 유튜브·영상 파일 재생, 팝업 퀴즈, 타임스탬프 노트, 구간 북마크 바, 샘플 데이터
-const APP_VERSION = 'v1.8.3';
+const APP_VERSION = 'v1.9.0';
 const APP_NAME = '10 인터랙티브 학습용 동영상 플레이어';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -974,11 +1047,15 @@ const store = {
 // 예전 localStorage 값은 읽을 수 있고, 새로 저장하면 IndexedDB로 옮겨지며 localStorage 쪽은 지워 공간을 비움
 const idb = (() => {
   let dbp = null;
-  const open = () => dbp || (dbp = new Promise((res, rej) => {
+  // 다른 탭이 DB를 붙잡고 있으면 열기가 끝없이 기다릴 수 있어 3초 제한 (넘으면 localStorage로)
+  let dead = null; // 한 번 응답이 없으면 이 화면에서는 다시 기다리지 않음
+  const open = () => dead ? Promise.reject(dead) : dbp || (dbp = new Promise((res, rej) => {
+    const fail = e => { dbp = null; if (/응답 없음/.test(e?.message)) dead = e; rej(e); };
+    const timer = setTimeout(() => fail(new Error('IndexedDB 응답 없음')), 3000);
     const r = indexedDB.open('cliplab', 1);
     r.onupgradeneeded = () => r.result.createObjectStore('kv');
-    r.onsuccess = () => res(r.result);
-    r.onerror = () => { dbp = null; rej(r.error); };
+    r.onsuccess = () => { clearTimeout(timer); r.result.onversionchange = () => { r.result.close(); dbp = null; }; res(r.result); };
+    r.onerror = () => { clearTimeout(timer); fail(r.error); };
   }));
   const run = async (mode, fn) => {
     const db = await open();
@@ -1051,6 +1128,11 @@ function sampleRecord() {
         explanation: '영상은 로지스틱 곡선인 시그모이드 함수로 활성값을 0~1 사이로 만듭니다. ReLU는 영상 끝부분에서 요즘 더 많이 쓰는 대안으로 소개됩니다.',
         hint: 'S자 모양의 곡선을 떠올려 보세요.', mustPass: false }
     ],
+    highlights: [
+      { t: 150, dur: 7, style: 'center', text: '입력층 = 784개 뉴런', sub: '28 × 28 픽셀, 픽셀 하나가 뉴런 하나' },
+      { t: 430, dur: 7, style: 'lower', text: '은닉층 2개 × 뉴런 16개', sub: '784 → 16 → 16 → 10' },
+      { t: 760, dur: 6, style: 'tag', text: '가중치·편향 ≈ 13,000개' }
+    ],
     bookmarks: [
       { t: 0, label: '도입: 손글씨 숫자 인식 문제' },
       { t: 160, label: '뉴런과 층의 구조' },
@@ -1100,6 +1182,8 @@ function normRecord(r) {
     cues: (r.cues || []).filter(c => c && c.text).map(c => ({ s: +c.s || 0, e: +c.e || 0, text: String(c.text) })),
     approx: !!r.approx, updated: r.updated || Date.now(),
     deploy: { due: String(r.deploy?.due || ''), minWatch: Math.min(100, Math.max(0, Math.round(+r.deploy?.minWatch || 0))), url: String(r.deploy?.url || '') },
+    highlights: (r.highlights || []).filter(x => x).map(x => ({ id: x.id || uid(), t: Math.max(0, +x.t || 0), dur: Math.min(30, Math.max(2, +x.dur || 6)),
+      text: String(x.text ?? ''), sub: String(x.sub ?? ''), style: HL_STYLES[x.style] ? x.style : 'lower', auto: !!x.auto })),
     endSummary: (Array.isArray(r.endSummary) ? r.endSummary : []).map(String).filter(s => s.trim()),
     tr: Array.isArray(r.tr?.texts) && r.tr.texts.length ? { lang: String(r.tr.lang || ''), texts: r.tr.texts.map(x => String(x ?? '')) } : null // 자막 번역 (cues와 같은 순서)
   };
@@ -1108,7 +1192,8 @@ function normRecord(r) {
   return o;
 }
 const byT = (a, b) => a.t - b.t;
-function sortAll(r) { r.quizzes.sort(byT); r.bookmarks.sort(byT); r.notes.sort(byT); }
+function sortAll(r) { r.quizzes.sort(byT); r.bookmarks.sort(byT); r.notes.sort(byT); r.highlights.sort(byT); }
+const HL_STYLES = { lower: '아래 띠', center: '가운데 카드', top: '위 배너', tag: '모서리 태그' };
 const vidOf = src => src.kind === 'yt' ? 'yt:' + src.id : src.kind === 'url' ? 'url:' + src.url : `file:${src.name}:${src.size}`;
 const newRecord = (src, title = '') => normRecord({ vid: vidOf(src), src, title, titleAuto: true });
 const videoUrl = (r, t) => r.src.kind === 'yt' ? `https://youtu.be/${r.src.id}${t ? `?t=${Math.floor(t)}` : ''}` : r.src.kind === 'url' ? r.src.url : `내 컴퓨터 파일: ${r.src.name}`;
@@ -1327,6 +1412,7 @@ function tick() {
   $('bar').setAttribute('aria-valuetext', fmt(t));
   if (stamp == null) $('stampTime').textContent = fmt(t);
   highlight(t);
+  renderHL(t);
   if (playing !== tick.wasPlaying) { tick.wasPlaying = playing; renderPlayBtn(); }
 }
 setInterval(tick, 250);
@@ -1361,19 +1447,29 @@ function highlight(t) {
 
 // ---------- 영상 위 자막 (CC) · 전체 화면 ----------
 const CC_SIZES = [['s', '작게'], ['m', '보통'], ['l', '크게']];
-const ccPref = Object.assign({ on: false, size: 'm' }, store.get('cliplab-cc', {}));
+const ccPref = Object.assign({ on: false, size: 'm', pos: 'bottom', hl: true }, store.get('cliplab-cc', {}));
 function renderCC(t) {
   const has = !!rec?.cues.length;
   $('ccBtn').disabled = !has;
   $('ccBtn').setAttribute('aria-pressed', ccPref.on && has);
   $('ccSize').disabled = !has || !ccPref.on;
   $('ccSizeLabel').textContent = CC_SIZES.find(s => s[0] === ccPref.size)[1];
-  $('ccBox').className = `cc-box cc-${ccPref.size}`;
+  // 영상 밖 아래는 전체 화면에서는 볼 수 없어 그때만 영상 하단으로
+  const pos = ccPref.pos === 'out' && document.fullscreenElement === $('playerBox') ? 'bottom' : (ccPref.pos || 'bottom');
+  $('ccPos').value = ccPref.pos || 'bottom';
+  $('ccPos').disabled = !has || !ccPref.on;
+  $('ccBox').className = `cc-box cc-${ccPref.size} pos-${pos}`;
   let text = '';
   if (has && ccPref.on) { const i = rec.cues.findIndex(c => c.s <= t + 0.1 && t < c.e + 0.3); text = i >= 0 ? cueLines(i).join('\n') : ''; }
+  const out = pos === 'out';
   if ($('ccText').textContent !== text) $('ccText').textContent = text;
-  $('ccBox').classList.toggle('hidden', !text);
+  $('ccBox').classList.toggle('hidden', out || !text);
+  // 영상 밖 아래: 자막이 없을 때도 자리를 지켜 화면이 들썩이지 않게
+  $('ccOut').className = `cc-out cc-${ccPref.size} ${out && has && ccPref.on ? '' : 'hidden'}`;
+  const shown = text || '\u00a0';
+  if (out && $('ccOut').textContent !== shown) $('ccOut').textContent = shown;
 }
+$('ccPos').onchange = () => { ccPref.pos = $('ccPos').value; store.set('cliplab-cc', ccPref); renderCC(player.time()); };
 $('ccBtn').onclick = () => { ccPref.on = !ccPref.on; store.set('cliplab-cc', ccPref); renderCC(player.time()); };
 $('ccSize').onclick = () => { const i = CC_SIZES.findIndex(s => s[0] === ccPref.size); ccPref.size = CC_SIZES[(i + 1) % 3][0]; store.set('cliplab-cc', ccPref); renderCC(player.time()); };
 // 플레이어 상자째 전체 화면: 자막·퀴즈 표시가 가려지지 않음
@@ -1440,11 +1536,13 @@ function renderBar() {
   $('lgNote').textContent = notes.length;
   $('lgConf').textContent = prog.confused.length;
   $('lgAsk').textContent = prog.questions.length;
+  $('lgHl').textContent = rec.highlights.length;
   if (!d) { $('marks').innerHTML = ''; return; }
   const left = t => `left:${Math.min(100, t / d * 100).toFixed(3)}%`;
   $('marks').innerHTML = [
     ...rec.bookmarks.map(b => `<button type="button" class="mk mk-book" style="${left(b.t)}" data-t="${b.t}" title="▲ ${fmt(b.t)} ${esc(b.label)}" aria-label="북마크 ${fmt(b.t)} ${esc(b.label)}"></button>`),
     ...notes.map(n => `<button type="button" class="mk mk-note" style="${left(n.t)}" data-t="${n.t}" title="● ${fmt(n.t)} ${esc(n.text.slice(0, 60))}" aria-label="노트 ${fmt(n.t)}"></button>`),
+    ...rec.highlights.map(x => `<button type="button" class="mk mk-hl" style="${left(x.t)}" data-t="${x.t}" title="★ ${fmt(x.t)} ${esc(x.text.slice(0, 50))}" aria-label="핵심 ${fmt(x.t)}"></button>`),
     ...prog.questions.map(x => `<button type="button" class="mk mk-ask" style="${left(x.t)}" data-t="${x.t}" title="? ${fmt(x.t)} ${esc(x.text.slice(0, 60))}" aria-label="질문 ${fmt(x.t)}"></button>`),
     ...prog.confused.map(t => `<button type="button" class="mk mk-conf" style="${left(t)}" data-t="${t}" title="✕ ${fmt(t)} 이해 안 됨" aria-label="이해 안 됨 ${fmt(t)}"></button>`),
     ...rec.quizzes.map((q, i) => `<button type="button" class="mk mk-quiz ${isDone(q) ? 'done' : ''} ${q.type === 'info' ? 'info' : ''}" style="${left(q.t)}" data-t="${q.t}" data-qid="${q.id}" title="◆ 퀴즈 ${i + 1} · ${fmt(q.t)}${mode === 'edit' ? ' · ' + esc(q.q.slice(0, 50)) : ''}" aria-label="퀴즈 ${i + 1} ${fmt(q.t)}"></button>`)
@@ -1749,40 +1847,105 @@ $('cueViewWrap').addEventListener('click', e => {
 const TR_LANGS = { ko: '한국어', en: '영어(English)', zh: '중국어 간체(简体中文)', 'zh-TW': '중국어 번체(繁體中文)', ja: '일본어(日本語)', vi: '베트남어(Tiếng Việt)', es: '스페인어(Español)', fr: '프랑스어(Français)' };
 $('trLang').innerHTML = Object.entries(TR_LANGS).map(([k, v]) => `<option value="${k}" ${k === 'en' ? 'selected' : ''}>${v}</option>`).join('');
 function renderTr() {
+  renderTrFast();
   const tr = rec.tr;
   $('trSrt').disabled = $('trClear').disabled = !tr;
   $('trInfo').textContent = !rec.cues.length ? '먼저 자막을 넣으세요. 번역본은 자막 목록·CC 자막에서 원문/번역/함께로 골라 볼 수 있고 학생용 HTML에도 담깁니다.'
     : tr ? `현재 번역: ${TR_LANGS[tr.lang] || tr.lang} · ${tr.texts.filter(Boolean).length}/${rec.cues.length}문장 · 자막 목록에서 원문/번역/함께를 고르세요.`
     : `자막 ${rec.cues.length}문장 · 번역본은 학생용 HTML에도 담겨 학생이 원문/번역/함께로 볼 수 있습니다.`;
 }
+// 번역은 기본으로 AI SETTING의 제공자·키·모델을 그대로 씀. "빠른 모델로 번역"을 켜면 같은 키로 아래 빠른 모델 사용
+const FAST_MODEL = { claude: 'claude-haiku-5-5', openai: 'gpt-6-luna', gemini: 'gemini-3.8-flash' };
+const TR_BATCH = 20, TR_PARALLEL = 3, TR_TIMEOUT = 90000, TR_RETRY = 2;
+const trModel = () => $('trFast').checked ? FAST_MODEL[provider] : (models[provider].trim() || PROVIDERS[provider].model);
+const renderTrFast = () => { $('trFastName').textContent = `— ${$('trFast').checked ? `켜짐: ${PROVIDERS[provider].name} 키로 ${FAST_MODEL[provider]} 사용` : `꺼짐: AI SETTING의 ${PROVIDERS[provider].name} 키·${models[provider].trim() || PROVIDERS[provider].model} 그대로 사용`}`; };
+$('trFast').addEventListener('change', renderTrFast);
+document.querySelectorAll('input[name=provider]').forEach(r => r.addEventListener('change', renderTrFast));
+$('model').addEventListener('input', renderTrFast);
+let trJob = null; // 진행 중인 번역 { stop: AbortController 묶음, stopped }
+$('trStop').onclick = () => { if (!trJob) return; trJob.stopped = true; trJob.ctrls.forEach(c => c.abort()); $('trProgText').textContent = '멈추는 중…'; };
 $('trBtn').onclick = async () => {
-  if (!aiReady($('aiMsg'))) return;
-  const lang = $('trLang').value, name = TR_LANGS[lang], cues = rec.cues, btn = $('trBtn');
-  if (rec.tr && !confirm(`지금 번역(${TR_LANGS[rec.tr.lang] || rec.tr.lang})을 ${name} 번역으로 바꿀까요?`)) return;
-  const out = new Array(cues.length).fill(''), B = 60;
-  setBusy(btn, true, '번역 준비 중…');
-  try {
-    for (let i = 0; i < cues.length; i += B) {
-      btn.innerHTML = `<span class="spinner"></span>번역 중… ${Math.round(i / cues.length * 100)}%`;
-      const part = cues.slice(i, i + B);
-      const ask = () => aiJSON(`다음은 대학 강의 영상 자막 ${part.length}줄입니다. 각 줄을 ${name}로 자연스럽게 번역하세요.
-- 줄 수와 순서를 그대로 지켜 정확히 ${part.length}개 (줄을 합치거나 나누지 말 것, 앞의 번호는 빼고)
+  if (trJob || !aiReady($('aiMsg'))) return;
+  const lang = $('trLang').value, name = TR_LANGS[lang], cues = rec.cues, model = trModel();
+  // 같은 언어면 남은 문장만 이어서, 다 끝났으면 처음부터 다시 할지 물음 / 다른 언어면 바꿀지 물음
+  const same = rec.tr?.lang === lang && rec.tr.texts.length === cues.length;
+  if (rec.tr && !same && !confirm(`지금 번역(${TR_LANGS[rec.tr.lang] || rec.tr.lang})을 ${name} 번역으로 바꿀까요?`)) return;
+  const redo = same && rec.tr.texts.every(Boolean);
+  if (redo && !confirm(`모든 문장이 이미 ${name}로 번역되어 있습니다. 처음부터 다시 번역할까요?`)) return;
+  const keep = same && !redo ? rec.tr.texts : null;
+  const out = keep ? [...keep] : new Array(cues.length).fill('');
+  const batches = [];
+  for (let i = 0; i < cues.length; i += TR_BATCH) {
+    const idx = [...Array(Math.min(TR_BATCH, cues.length - i)).keys()].map(k => i + k).filter(j => !out[j]);
+    if (idx.length) batches.push(idx);
+  }
+  const total = batches.reduce((s, x) => s + x.length, 0);
+  if (!total) return flash($('aiMsg'), 'ok', `✔ 모든 문장이 이미 ${name}로 번역되어 있습니다.`);
+  const job = trJob = { ctrls: new Set(), stopped: false };
+  const t0 = Date.now();
+  let done = 0, failed = 0, retries = 0, next = 0;
+  const show = () => {
+    const sec = Math.round((Date.now() - t0) / 1000);
+    $('trBar').style.width = `${Math.round(done / total * 100)}%`;
+    $('trProgText').textContent = `번역 중… ${done}/${total}문장 · ${sec}초${failed ? ` · 실패 ${failed}문장` : ''}${retries ? ` · 재시도 ${retries}번` : ''} · ${model}`;
+  };
+  $('trBtn').disabled = true;
+  $('trBtn').innerHTML = '<span class="spinner"></span>번역 중';
+  $('trStop').classList.remove('hidden');
+  $('trProg').classList.remove('hidden');
+  const tick = setInterval(show, 1000);
+  show();
+  // 한 묶음: 시간 제한을 넘거나 줄 수가 어긋나면 다시 시도, 끝내 안 되면 그 묶음은 원문으로 둠
+  const runBatch = async idx => {
+    const prompt = `다음은 대학 강의 영상 자막 ${idx.length}줄입니다. 각 줄을 ${name}로 자연스럽게 번역하세요.
+- 줄 수와 순서를 그대로 지켜 정확히 ${idx.length}개 (줄을 합치거나 나누지 말 것, 앞의 번호는 빼고)
 - 전문 용어는 정확하게, 자막답게 간결하게
 - 이미 ${name}인 줄은 그대로 둠
 다른 설명 없이 JSON만 출력하세요: {"lines":["", ...]}
 
-${part.map((c, k) => `${k + 1}. ${c.text}`).join('\n')}`);
-      let lines = ((await ask()).lines || []).map(String);
-      if (lines.length !== part.length) lines = ((await ask()).lines || []).map(String); // 줄 수가 어긋나면 한 번 더
-      lines.slice(0, part.length).forEach((l, k) => out[i + k] = l.replace(new RegExp(`^\\s*${k + 1}[.)]\\s*`), '').trim());
+${idx.map((j, k) => `${k + 1}. ${cues[j].text}`).join('\n')}`;
+    for (let attempt = 0; attempt <= TR_RETRY && !job.stopped; attempt++) {
+      if (attempt) { retries++; show(); }
+      const ctrl = new AbortController();
+      job.ctrls.add(ctrl);
+      const timer = setTimeout(() => ctrl.abort('timeout'), TR_TIMEOUT);
+      try {
+        const lines = ((await aiJSON(prompt, { model, signal: ctrl.signal })).lines || []).map(String);
+        if (lines.length !== idx.length && attempt < TR_RETRY) continue;
+        lines.slice(0, idx.length).forEach((l, k) => out[idx[k]] = l.replace(new RegExp(`^\\s*${k + 1}[.)]\\s*`), '').trim());
+        done += idx.length;
+        failed += idx.filter(j => !out[j]).length;
+        show();
+        return;
+      } catch (err) {
+        if (job.stopped) return;
+        // 키·모델 오류처럼 다시 해도 안 되는 오류는 바로 중단
+        if (/401|403|404|invalid|not found|permission|API key/i.test(err.message)) { job.fatal = err; job.stopped = true; job.ctrls.forEach(c => c.abort()); return; }
+      } finally { clearTimeout(timer); job.ctrls.delete(ctrl); }
     }
+    if (!job.stopped) { done += idx.length; failed += idx.length; show(); }
+  };
+  const worker = async () => { while (!job.stopped && next < batches.length) await runBatch(batches[next++]); };
+  try {
+    await Promise.all(Array.from({ length: Math.min(TR_PARALLEL, batches.length) }, worker));
+  } finally {
+    clearInterval(tick);
+    trJob = null;
+    $('trBtn').disabled = false;
+    $('trBtn').innerHTML = '🌐 AI로 자막 번역';
+    $('trStop').classList.add('hidden');
+    $('trProg').classList.add('hidden');
+  }
+  const got = out.filter(Boolean).length, sec = Math.round((Date.now() - t0) / 1000);
+  if (got) {
     rec.tr = { lang, texts: out };
     if (!ccPref.view || ccPref.view === 'orig') { ccPref.view = 'both'; store.set('cliplab-cc', ccPref); }
     persist(); renderCues(); renderTr(); renderCC(player.time());
-    const miss = out.filter(x => !x).length;
-    flash($('aiMsg'), miss ? 'info' : 'ok', `✔ 자막 ${cues.length}문장을 ${name}로 번역했습니다.${miss ? ` (${miss}문장은 번역을 받지 못해 원문으로 보입니다. 다시 번역하면 채워질 수 있어요)` : ''} 자막 목록과 CC 자막에서 원문/번역/함께를 고를 수 있습니다.`);
-  } catch (err) { flash($('aiMsg'), 'ng', '✘ 자막 번역 실패: ' + err.message); }
-  finally { setBusy(btn, false); }
+  }
+  const miss = cues.length - got;
+  if (job.fatal) return flash($('aiMsg'), 'ng', `✘ 자막 번역 실패: ${job.fatal.message}${$('trFast').checked ? ` (번역 모델 ${model}을 쓸 수 없다면 "빠른 모델 사용"을 끄고 다시 하세요)` : ''}`);
+  if (job.stopped) return flash($('aiMsg'), 'info', `⏹ 번역을 멈췄습니다. ${got}/${cues.length}문장까지 저장했습니다(${sec}초). 다시 누르면 남은 문장만 이어서 번역합니다.`);
+  flash($('aiMsg'), miss ? 'info' : 'ok', `✔ 자막 ${got}/${cues.length}문장을 ${name}로 번역했습니다(${sec}초 · ${model}).${miss ? ` ${miss}문장은 시간 초과 등으로 받지 못해 원문으로 보입니다. 다시 누르면 남은 문장만 이어서 번역합니다.` : ''} 자막 목록과 CC 자막에서 원문/번역/함께를 고를 수 있습니다.`);
 };
 $('trSrt').onclick = () => {
   if (!rec.tr) return;
@@ -1949,6 +2112,7 @@ function setMode(m) {
   $('editTools').classList.toggle('hidden', mode !== 'edit');
   $('editorWrap').classList.toggle('hidden', mode !== 'edit');
   $('editorOff').classList.toggle('hidden', mode === 'edit');
+  $('hlTools').classList.toggle('hidden', mode !== 'edit');
   $('bEditor').classList.toggle('hidden', mode !== 'edit');
   $('titleInput').readOnly = mode !== 'edit';
   $('confBtn').hidden = $('askBtn').hidden = $('endBtn').hidden = mode === 'edit';
@@ -2119,6 +2283,107 @@ $('qEditor').addEventListener('click', async e => {
   else if (act === 'regen') regenQuiz(q, b);
 });
 
+// ---------- 핵심 표시: 시간 구간에 맞춰 영상 위에 모션 그래픽 ----------
+const hlShown = new Map(); // 지금 떠 있는 핵심 표시 id → 요소
+let hlLastT = 0;
+function clearHL() { hlShown.forEach(el => el.remove()); hlShown.clear(); }
+function renderHL(t) {
+  const on = ccPref.hl !== false && rec;
+  const active = on ? rec.highlights.filter(x => x.text.trim() && t >= x.t && t < x.t + x.dur) : [];
+  const ids = new Set(active.map(x => x.id)), jumped = Math.abs(t - hlLastT) > 2;
+  hlLastT = t;
+  for (const [id, el] of hlShown) if (!ids.has(id)) {
+    hlShown.delete(id);
+    if (jumped) el.remove(); else { el.classList.add('out'); setTimeout(() => el.remove(), 450); }
+  }
+  for (const x of active) if (!hlShown.has(x.id)) {
+    const el = document.createElement('div');
+    el.className = `hl hl-${x.style}`;
+    el.innerHTML = `<b>${esc(x.text)}</b>${x.sub ? `<small>${esc(x.sub)}</small>` : ''}`;
+    $('hlLayer').appendChild(el);
+    hlShown.set(x.id, el);
+  }
+}
+$('hlBtn').onclick = () => { ccPref.hl = ccPref.hl === false; store.set('cliplab-cc', ccPref); $('hlBtn').setAttribute('aria-pressed', ccPref.hl); clearHL(); renderHL(player.time()); };
+$('hlBtn').setAttribute('aria-pressed', ccPref.hl !== false);
+function addHighlight(t) {
+  const x = { id: uid(), t: Math.round(t * 10) / 10, dur: 6, style: 'lower', text: '', sub: '', auto: false };
+  rec.highlights.push(x); rec.highlights.sort(byT);
+  persist(); renderBar(); renderHlEditor();
+  const inp = $('hlEditor').querySelector(`[data-hl-id="${x.id}"] [data-hf="text"]`);
+  inp?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  setTimeout(() => inp?.focus({ preventScroll: true }), 300);
+}
+$('addHlHere').onclick = () => addHighlight(player.time());
+$('addHlBtn').onclick = () => addHighlight(player.time());
+function renderHlEditor() {
+  $('hlCount').textContent = rec.highlights.length;
+  $('hlEditor').innerHTML = rec.highlights.length ? rec.highlights.map(x => `
+    <div class="glass-chip rounded-2xl p-3 space-y-2" data-hl-id="${x.id}">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-sm" aria-hidden="true" style="color:rgb(var(--accent))">★</span>
+        <input data-hf="t" class="field !w-[5rem] !py-1.5 !px-2 font-disp text-center text-xs" value="${fmt(x.t)}" aria-label="시작 시간">
+        <label class="flex items-center gap-1 text-[11px] font-bold">길이 <input data-hf="dur" type="number" min="2" max="30" class="field !w-[3.8rem] !py-1.5 !px-2 font-disp text-center text-xs" value="${x.dur}" aria-label="보이는 시간(초)">초</label>
+        <select data-hf="style" class="field !w-auto !py-1.5 !pl-3 !text-xs" aria-label="모양">${Object.entries(HL_STYLES).map(([k, v]) => `<option value="${k}" ${k === x.style ? 'selected' : ''}>${v}</option>`).join('')}</select>
+        ${x.auto ? '<span class="text-[10px] font-disp font-semibold text-mute">AI</span>' : ''}
+        <span class="ml-auto flex gap-1.5">
+          <button type="button" class="icon-btn" data-hact="go" aria-label="이 장면 보기" title="이 장면 보기">▶</button>
+          <button type="button" class="icon-btn danger" data-hact="del" aria-label="핵심 표시 삭제">✕</button>
+        </span>
+      </div>
+      <input data-hf="text" class="field !py-2 text-sm font-bold" maxlength="60" value="${esc(x.text)}" placeholder="핵심 문구 (20자 안팎)" aria-label="핵심 문구">
+      <input data-hf="sub" class="field !py-2 text-xs" maxlength="90" value="${esc(x.sub)}" placeholder="보조 설명 (선택 · 모서리 태그에는 안 보임)" aria-label="보조 설명">
+    </div>`).join('') : '<p class="glass-info rounded-2xl px-4 py-4 text-xs text-center">핵심 표시가 없습니다. 원하는 장면에서 <b class="text-ink">★ 핵심 표시 추가</b>를 누르거나 <b class="text-ink">AI로 핵심 추출</b>을 쓰세요.</p>';
+}
+const rowHL = el => { const r = el.closest('[data-hl-id]'); return r ? rec.highlights.find(x => x.id === r.dataset.hlId) : null; };
+$('hlEditor').addEventListener('input', e => {
+  const x = rowHL(e.target), f = e.target.dataset.hf;
+  if (!x || (f !== 'text' && f !== 'sub')) return;
+  x[f] = e.target.value;
+  persist(); renderBar(); clearHL(); renderHL(player.time());
+});
+$('hlEditor').addEventListener('change', e => {
+  const x = rowHL(e.target), f = e.target.dataset.hf;
+  if (!x) return;
+  if (f === 't') { const t = parseTime(e.target.value); if (t == null) { e.target.value = fmt(x.t); return; } x.t = t; rec.highlights.sort(byT); renderHlEditor(); }
+  else if (f === 'dur') { x.dur = Math.min(30, Math.max(2, +e.target.value || 6)); e.target.value = x.dur; }
+  else if (f === 'style') x.style = e.target.value;
+  else return;
+  persist(); renderBar(); clearHL(); renderHL(player.time());
+});
+$('hlEditor').addEventListener('click', e => {
+  const b = e.target.closest('[data-hact]'), x = b && rowHL(b);
+  if (!x) return;
+  if (b.dataset.hact === 'go') { seekTo(Math.max(0, x.t - 0.5)); player.play(); $('stage').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  else { rec.highlights.splice(rec.highlights.indexOf(x), 1); persist(); renderBar(); renderHlEditor(); clearHL(); renderHL(player.time()); }
+});
+$('aiHl').onclick = async () => {
+  if (!aiReady($('hlMsg'))) return;
+  const autos = rec.highlights.filter(x => x.auto).length;
+  if (autos && !confirm(`AI가 만든 핵심 표시 ${autos}개를 새로 추출한 것으로 바꿀까요? (직접 만든 것은 그대로)`)) return;
+  const d = dur() || rec.cues.at(-1).e;
+  setBusy($('aiHl'), true, '핵심 추출 중…');
+  try {
+    const data = await aiJSON(`아래 강의 영상 자막을 읽고, 학생이 꼭 기억해야 할 핵심 내용 5~10개를 골라 영상 위에 짧게 띄울 문구로 만드세요.
+- t는 그 내용을 말하기 시작한 시각(초, 정수), 영상 길이 ${Math.round(d)}초 안에서 고르게
+- text는 핵심 용어·수치·정의를 담은 20자 이내 한국어 문구, sub는 40자 이내 보조 설명(없으면 빈 문자열)
+- style은 lower(일반 핵심), center(가장 중요한 개념 1~2개), top(장 제목·주제 전환), tag(숫자·용어 강조) 중에서
+- dur는 보여 줄 시간(초, 4~9)
+다른 설명 없이 JSON만 출력하세요: {"items":[{"t":0,"dur":6,"style":"lower","text":"","sub":""}]}
+
+<자막>
+${transcript()}
+</자막>`);
+    const items = (data.items || []).filter(x => x && String(x.text || '').trim()).map(x => ({ id: uid(), t: Math.min(Math.max(+x.t || 0, 0), Math.max(0, d - 2)),
+      dur: Math.min(30, Math.max(2, +x.dur || 6)), style: HL_STYLES[x.style] ? x.style : 'lower', text: String(x.text).slice(0, 60), sub: String(x.sub || '').slice(0, 90), auto: true }));
+    if (!items.length) throw new Error('핵심 내용을 받지 못했습니다.');
+    rec.highlights = [...rec.highlights.filter(x => !x.auto), ...items].sort(byT);
+    persist(); renderBar(); renderHlEditor(); clearHL(); renderHL(player.time());
+    flash($('hlMsg'), 'ok', `✔ 핵심 표시 ${items.length}개를 만들었습니다. ▶로 장면을 확인하고 문구·모양·길이를 다듬으세요.`);
+  } catch (err) { flash($('hlMsg'), 'ng', '✘ 핵심 추출 실패: ' + err.message); }
+  finally { setBusy($('aiHl'), false); }
+};
+
 // ---------- 북마크 편집 ----------
 function renderBooks() {
   $('bCount').textContent = rec.bookmarks.length;
@@ -2248,25 +2513,25 @@ async function suggestModels(key) {
 $('checkBtn').onclick = checkConnection;
 
 // ---------- AI 요청: 응답 텍스트에서 JSON만 꺼냄 ----------
-async function postJSON(url, headers, payload) {
-  const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(payload) });
+async function postJSON(url, headers, payload, signal) {
+  const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(payload), signal });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(body?.error?.message || `HTTP ${res.status}`);
   return body;
 }
 const REQUESTERS = {
-  async claude(key, model, text) {
-    const body = await postJSON('https://api.anthropic.com/v1/messages', ANT_H(key), { model, max_tokens: 8192, messages: [{ role: 'user', content: text }] });
+  async claude(key, model, text, signal) {
+    const body = await postJSON('https://api.anthropic.com/v1/messages', ANT_H(key), { model, max_tokens: 16000, messages: [{ role: 'user', content: text }] }, signal);
     return (body.content || []).filter(c => c.type === 'text').map(c => c.text).join('');
   },
-  async openai(key, model, text) {
+  async openai(key, model, text, signal) {
     const body = await postJSON('https://api.openai.com/v1/chat/completions', { authorization: `Bearer ${key}` },
-      { model, response_format: { type: 'json_object' }, messages: [{ role: 'user', content: text }] });
+      { model, response_format: { type: 'json_object' }, messages: [{ role: 'user', content: text }] }, signal);
     return body.choices?.[0]?.message?.content || '';
   },
-  async gemini(key, model, text) {
+  async gemini(key, model, text, signal) {
     const body = await postJSON(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { 'x-goog-api-key': key },
-      { contents: [{ role: 'user', parts: [{ text }] }], generationConfig: { responseMimeType: 'application/json' } });
+      { contents: [{ role: 'user', parts: [{ text }] }], generationConfig: { responseMimeType: 'application/json' } }, signal);
     return (body.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
   }
 };
@@ -2275,8 +2540,9 @@ function aiReady(msgEl) {
   if (!rec.cues.length) { flash(msgEl, 'ng', '✘ 먼저 자막(SRT·VTT 파일 또는 대본)을 넣으세요. AI는 자막 내용을 읽고 만듭니다.'); return false; }
   return true;
 }
-async function aiJSON(prompt) {
-  const out = await REQUESTERS[provider](keys[provider].trim(), models[provider].trim() || PROVIDERS[provider].model, prompt);
+// opts.model: 이 요청에만 쓸 모델 · opts.signal: 멈추기(AbortController)
+async function aiJSON(prompt, opts = {}) {
+  const out = await REQUESTERS[provider](keys[provider].trim(), opts.model || models[provider].trim() || PROVIDERS[provider].model, prompt, opts.signal);
   const m = out.match(/\{[\s\S]*\}/);
   if (!m) throw new Error('응답에서 JSON을 찾지 못했습니다.');
   return JSON.parse(m[0]);
@@ -3391,7 +3657,7 @@ function renderAll() {
   renderTitle();
   $('blockSkip').checked = rec.blockSkip;
   setMode(mode);
-  renderBar(); renderNotes(); renderCues(); renderEditor(); renderBooks(); renderSubInfo(); renderLoop(); renderStamp(); renderHistory(); renderDeploy(); renderStu();
+  renderBar(); renderNotes(); renderCues(); renderEditor(); renderBooks(); clearHL(); renderHlEditor(); renderSubInfo(); renderLoop(); renderStamp(); renderHistory(); renderDeploy(); renderStu();
   $('saveState').textContent = '';
 }
 
