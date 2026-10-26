@@ -354,6 +354,7 @@
         <span class="ml-auto flex items-center gap-2 min-w-0"><span class="sec-sum" id="sum-hist"></span><span class="font-disp text-xs">TOTAL <b id="histCount">0</b></span><span class="chev" aria-hidden="true"></span></span>
       </button>
       <div id="body-hist" class="space-y-2">
+        <p id="histWarn" class="hidden glass-ng rounded-2xl px-4 py-2.5 text-[11px] leading-relaxed" role="alert"></p>
         <div class="glass rounded-2xl overflow-hidden">
           <table class="w-full text-xs table-fixed">
             <colgroup><col class="w-[4.6rem] sm:w-[7.5rem]"><col><col class="w-[2.4rem] sm:w-[3rem]"><col class="w-[2.4rem] sm:w-[3rem]"><col class="w-[2.4rem] sm:w-[3rem]"><col class="w-[2.4rem] sm:w-[3rem]"><col class="w-[2.4rem] sm:w-[3rem]"></colgroup>
@@ -879,6 +880,7 @@
 
 <script id="appMain">
 // 화면·저장 파일에 표시되는 앱 버전. 수정할 때마다 올림: 새 기능 → 둘째 자리, 고침·디자인 → 셋째 자리
+// v1.8.1  히스토리가 안 보이던 문제: 저장이 막힌 화면 안내·메모리 백업/복원, 시작 직후 저장 시 빈 목록으로 덮어쓰기 방지
 // v1.8.0  결과 코드 제출·코드 집계, 처음 고른 답 분포, 시점별 학생 질문, 설명 카드(■), 전체 백업·복원, 끊긴 자막 조각 한 줄로 합치기
 // v1.7.0  Share = 온라인 공유 링크(앱 웹 주소 + 압축 데이터, 열면 학생 시청 모드), 히스토리·영상 기록을 IndexedDB에 저장해 용량 초과 저장 오류 해결
 // v1.6.1  퀴즈 창을 영상 위 오버레이로 표시(넓은 화면·플레이어 전체 화면), 휴대폰은 바텀 시트 유지
@@ -897,7 +899,7 @@
 // v1.2.0  STEP 3 편집 모드/시청 모드, 퀴즈 4유형·힌트·통과 조건, 건너뛰기 막기, 자막 표시·검색, AI 요약·챕터, 속도·구간 반복·단축키
 // v1.1.0  STEP 2 AI 연결(Claude·OpenAI·Gemini, 연결 확인·모델 제안), 자막 기반 AI 퀴즈 배치, 키·강의 정보 저장, 접기·펼치기
 // v1.0.0  STEP 1 기본 골격: 유튜브·영상 파일 재생, 팝업 퀴즈, 타임스탬프 노트, 구간 북마크 바, 샘플 데이터
-const APP_VERSION = 'v1.8.0';
+const APP_VERSION = 'v1.8.1';
 const APP_NAME = '10 인터랙티브 학습용 동영상 플레이어';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -980,6 +982,13 @@ const idb = (() => {
   return { get: k => run('readonly', s => s.get(k)), set: (k, v) => run('readwrite', s => s.put(v, k)), del: k => run('readwrite', s => s.delete(k)),
     keys: () => run('readonly', s => s.getAllKeys()) };
 })();
+// 시작할 때 확인: 히스토리를 이 브라우저에 보관할 수 있는지
+let canPersist = true;
+let historyReady = null; // 시작 때 히스토리를 다 불러온 뒤 저장하도록 (빈 목록으로 덮어쓰기 방지)
+async function checkPersist() {
+  try { await idb.keys(); canPersist = true; } catch { canPersist = storageOK; }
+  return canPersist;
+}
 const bigStore = {
   async get(k, d = null) {
     try { const v = await idb.get(k); if (v !== undefined) return v; } catch {}
@@ -1146,7 +1155,7 @@ const player = {
   rate(r) { try { if (this.kind === 'yt') ytReady && yt.setPlaybackRate(r); else if (this.kind) vEl.playbackRate = r; } catch {} }
 };
 const dur = () => player.duration() || rec?.duration || 0;
-const isFileProto = location.protocol === 'file:';
+const isFileProto = location.protocol === 'file:' || location.protocol === 'data:'; // data: = 앱 미리보기 창
 
 function loadYTApi() {
   if (!ytApi) ytApi = new Promise((res, rej) => {
@@ -2442,6 +2451,7 @@ function download(content, prefix, ext = 'html', type = 'text/html') { saveBlob(
 let history = []; // 시작할 때 IndexedDB에서 불러옴
 async function saveToHistory() {
   if (!rec) return;
+  await historyReady;
   const snap = JSON.parse(JSON.stringify(rec));
   delete snap.hid;
   const entry = { hid: rec.hid || uid(), date: Date.now(), vid: rec.vid, title: rec.title || '(제목 없음)', subject: course.course, quizCount: rec.quizzes.length, snap };
@@ -2452,7 +2462,9 @@ async function saveToHistory() {
   const ok = await bigStore.set(HIST_KEY, history);
   $('saveHistory').disabled = false;
   persist(); renderHistory();
-  flash($('srcMsg'), ok === true ? 'ok' : 'ng', ok === true ? `✔ VIDEO HISTORY에 ${i >= 0 ? '덮어써' : '새로'} 저장했습니다. (퀴즈 ${entry.quizCount}개)` : `✘ 히스토리를 저장하지 못했습니다. ${ok}`);
+  flash($('srcMsg'), ok === true ? 'ok' : 'ng', ok === true ? `✔ VIDEO HISTORY에 ${i >= 0 ? '덮어써' : '새로'} 저장했습니다. (퀴즈 ${entry.quizCount}개)`
+    : canPersist ? `✘ 히스토리를 저장하지 못했습니다. ${ok}`
+    : '⚠ 목록에는 넣었지만 이 화면은 브라우저 저장이 막혀 새로고침하면 사라집니다. "💾 전체 백업"으로 파일에 보관하세요.');
 }
 $('saveHistory').onclick = saveToHistory;
 function renderHistory() {
@@ -2796,6 +2808,9 @@ $('backupBtn').onclick = async () => {
   try { for (let i = 0; i < localStorage.length; i++) all.add(localStorage.key(i)); } catch {}
   const data = {};
   for (const k of all) if (isBigKey(k)) data[k] = await bigStore.get(k);
+  const saved = Array.isArray(data[HIST_KEY]) ? data[HIST_KEY] : [];
+  data[HIST_KEY] = [...history, ...saved.filter(x => !history.some(y => y.hid === x.hid))];
+  if (rec && !STUDENT) data['cliplab-video:' + rec.vid] = JSON.parse(JSON.stringify(rec));
   const settings = { ...store.get(STORE_KEY, {}) };
   delete settings.keys;
   const videos = Object.keys(data).filter(k => k !== HIST_KEY).length;
@@ -2823,6 +2838,12 @@ $('restoreFile').onchange = async e => {
   if (ok !== true) fails.push(ok);
   if (b.settings) { applySettings({ ...b.settings, keys: undefined }); saveSettings(); }
   if (b.cc) store.set('cliplab-cc', b.cc);
+  if (!canPersist) {
+    history = merged; renderHistory();
+    const r = b.data['cliplab-video:' + lastVid] || (hist[0]?.snap);
+    if (r) openRecord(r);
+    return flash($('srcMsg'), 'info', `✔ 백업을 이 화면에 불러왔습니다(히스토리 ${merged.length}개). 이 화면은 브라우저 저장이 막혀 새로고침하면 다시 사라지니, 크롬·엣지에서 직접 열어 복원하는 것을 권합니다.`);
+  }
   if (fails.length) return flash($('srcMsg'), 'ng', '✘ 일부를 되살리지 못했습니다: ' + fails[0]);
   flash($('srcMsg'), 'ok', '✔ 백업을 되살렸습니다. 잠시 뒤 화면을 새로 고칩니다.');
   setTimeout(() => location.reload(), 900);
@@ -3391,8 +3412,17 @@ $('appUrl').placeholder = pageAppUrl() || '예: https://아이디.github.io/clip
     openRecord(STUDENT.record);
     if (!prog.student) openStuModal();
   } else {
+    let done;
+    historyReady = new Promise(r => done = r);
+    if (!await checkPersist()) {
+      $('histWarn').innerHTML = `⚠ 지금 화면은 <b>브라우저 저장이 막혀</b>(앱 미리보기 창·data: 주소·일부 시크릿 창 등) 히스토리·퀴즈·노트가 <b>새로고침하면 사라집니다</b>.
+        index.html을 <b>크롬·엣지에서 직접</b> 열거나 웹 주소(https://…)로 여세요. 지금 작업은 <b>💾 전체 백업</b>으로 파일에 보관했다가 <b>백업 복원</b>으로 되살릴 수 있습니다.`;
+      $('histWarn').classList.remove('hidden');
+      setCollapsed('hist', false);
+    }
     history = await bigStore.get(HIST_KEY, []);
     if (!Array.isArray(history)) history = [];
+    done();
     const last = lastVid && await bigStore.get('cliplab-video:' + lastVid);
     openRecord(last || sampleRecord());
   }
