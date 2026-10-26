@@ -172,7 +172,8 @@
   .mk-conf::before { content: '✕'; font-size: .72rem; font-weight: 700; line-height: 1; color: #4a4a50; }
   /* 영상 위 자막 (접근성) */
   .cc-box { position: absolute; left: 0; right: 0; bottom: 11%; display: flex; justify-content: center; padding: 0 6%; pointer-events: none; z-index: 5; text-align: center; }
-  .cc-box span { background: rgba(0,0,0,.74); color: #fff; border-radius: .45rem; padding: .2em .6em; line-height: 1.5; font-weight: 500;
+  .tab-btn[aria-pressed="true"] { background: var(--face); color: var(--ink); box-shadow: var(--raise-sm); }
+  .cc-box span { white-space: pre-line; background: rgba(0,0,0,.74); color: #fff; border-radius: .45rem; padding: .2em .6em; line-height: 1.5; font-weight: 500;
     -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .cc-box.cc-s span { font-size: clamp(11px, 1.6vw, 15px); }
   .cc-box.cc-m span { font-size: clamp(13px, 2.1vw, 20px); }
@@ -228,6 +229,22 @@
       animation: sheetUp .26s cubic-bezier(.2,.8,.2,1); box-shadow: 0 -16px 40px -16px rgba(0,0,0,.4), inset 0 1px 0 #fff; }
     .sheet-grip { display: block; width: 2.6rem; height: .3rem; border-radius: 9999px; background: rgba(0,0,0,.16); margin: 0 auto .9rem; }
   }
+  /* 퀴즈 창을 영상 위에 겹쳐 보이기 (넓은 화면 · 플레이어 전체 화면) */
+  .modal-back.in-player { position: absolute; inset: 0; z-index: 30; align-items: center; padding: clamp(.4rem, 2.2%, 1.25rem);
+    background: rgba(24,24,27,.55); border-radius: inherit; }
+  .in-player .sheet { max-width: min(40rem, 100%); max-height: 100%; border-radius: 1.4rem; padding: 1rem 1.25rem; background: rgba(241,241,240,.97);
+    animation: pop .18s ease-out; box-shadow: 0 24px 48px -16px rgba(0,0,0,.55), inset 0 1px 0 #fff; }
+  .in-player .sheet-grip { display: none; }
+  .in-player #qmTitle { margin-top: .5rem; font-size: .95rem; }
+  .in-player #qmBody { margin-top: .75rem; }
+  .in-player .opt { margin-bottom: .4rem; }
+  .in-player .opt > span { padding: .5rem .85rem; }
+  .in-player .opt .bullet { width: 1.55rem; height: 1.55rem; }
+  .in-player .ox > span { height: 3.6rem; font-size: 1.8rem; }
+  .in-player #qmFeedback { margin-top: .75rem; padding: .6rem .9rem; font-size: .8rem; }
+  .in-player #qmActions { margin-top: .9rem; }
+  .player-box:fullscreen .in-player .sheet { max-width: min(46rem, 100%); padding: 1.5rem 1.75rem; }
+  .player-box:fullscreen .in-player #qmTitle { font-size: 1.15rem; }
   @media (prefers-reduced-motion: reduce) { .sheet, .flash { animation: none; } .note-list, .cue-list { scroll-behavior: auto; } }
   [hidden] { display: none !important; }
 </style>
@@ -437,7 +454,14 @@
       <!-- 자막 -->
       <div id="cueSec" class="hidden glass rounded-[2rem] p-4 sm:p-6 space-y-3">
         <div class="sec-head">💬 SUBTITLE <small>—— 문장을 누르면 그 시간으로 이동</small><span class="ml-auto font-disp text-xs shrink-0">CUES <b id="cueCount">0</b></span></div>
-        <input id="cueSearch" type="search" class="field" placeholder="자막 검색 (예: 가중치)" aria-label="자막 검색">
+        <div class="flex flex-wrap items-center gap-2">
+          <input id="cueSearch" type="search" class="field flex-1 basis-40" placeholder="자막 검색 (예: 가중치)" aria-label="자막 검색">
+          <div id="cueViewWrap" class="hidden rounded-full p-1 flex gap-1 shrink-0 sunk" role="group" aria-label="자막 표시 방식">
+            <button type="button" class="tab-btn px-3 py-1.5 text-[11px] font-semibold" data-cue-view="orig">원문</button>
+            <button type="button" class="tab-btn px-3 py-1.5 text-[11px] font-semibold" data-cue-view="tr">번역</button>
+            <button type="button" class="tab-btn px-3 py-1.5 text-[11px] font-semibold" data-cue-view="both">함께</button>
+          </div>
+        </div>
         <p id="cueHits" class="hidden text-[11px] text-mute" role="status"></p>
         <div id="cueList" class="cue-list max-h-[16rem] sm:max-h-[18rem] overflow-y-auto space-y-0.5 pr-1"></div>
       </div>
@@ -524,7 +548,23 @@
         <p class="text-[11px] text-mute leading-relaxed -mt-1">마감 뒤에 저장한 제출 파일은 <b class="text-ink">지각</b>, 시청 비율이 기준보다 낮으면 <b class="text-ink">시청 미달</b>로 집계에 표시됩니다. 0%는 조건 없음.</p>
         <div class="flex gap-2">
           <button id="stuHtml" type="button" class="pill pill-dark flex-1 min-w-0 py-3 text-sm">🎓 학생용 HTML 내려받기 ↓</button>
-          <button id="stuShare" type="button" class="pill px-5 py-3 text-sm whitespace-nowrap" title="학생용 HTML 파일 또는 웹 주소를 메신저·메일 등으로 공유">🔗 Share</button>
+          <button id="stuShare" type="button" class="pill px-5 py-3 text-sm whitespace-nowrap" title="퀴즈·북마크·자막을 담은 온라인 링크를 만들어 공유">🔗 Share</button>
+        </div>
+        <div class="sunk rounded-[1.4rem] p-3 sm:p-4 space-y-3">
+          <span class="block text-xs font-bold">🔗 온라인 공유 링크 <span class="font-normal text-mute">— 링크 안에 퀴즈·북마크·자막을 담아, 누르면 바로 학생 시청 모드</span></span>
+          <label class="block"><span class="block text-[11px] font-bold mb-1.5">앱 웹 주소 <span class="font-normal text-mute">(한 번만 설정 · 이 index.html을 올린 주소)</span></span>
+            <input id="appUrl" type="url" inputmode="url" autocomplete="off" class="field text-xs" placeholder="예: https://아이디.github.io/cliplab/"></label>
+          <label class="flex items-center justify-between gap-3 cursor-pointer">
+            <span class="text-[11px] font-bold">자막·번역 포함 <span class="font-normal text-mute">— 끄면 링크가 짧아짐</span></span>
+            <input id="shareCues" type="checkbox" class="switch" checked></label>
+          <div id="shareOut" class="hidden space-y-2">
+            <div class="flex gap-2">
+              <input id="shareLink" readonly class="field flex-1 !py-2 text-[11px] font-disp" aria-label="온라인 공유 링크">
+              <button id="shareCopy" type="button" class="pill px-3 text-[11px] whitespace-nowrap">복사</button>
+              <a id="shareOpen" href="#" target="_blank" rel="noopener" class="pill px-3 text-[11px] whitespace-nowrap">열기 ↗</a>
+            </div>
+            <p id="shareLen" class="text-[11px] text-mute leading-relaxed"></p>
+          </div>
         </div>
         <p id="deployNote" class="hidden glass-ng rounded-2xl px-3 py-2 text-[11px] leading-relaxed"></p>
         <p class="text-[11px] text-mute leading-relaxed">유튜브 영상은 학생용 HTML을 웹(LMS·GitHub Pages 등)에 올려 열어야 안정적으로 재생됩니다.</p>
@@ -562,6 +602,8 @@
       <!-- 자막 입력 · AI -->
       <div class="space-y-3">
         <div class="sec-head">📝 SUBTITLE · AI <small>—— 자막으로 퀴즈·챕터 자동 생성</small></div>
+        <p class="text-xs font-bold leading-relaxed text-[#d0544a]">Youtube Subtitle Builder에서 자막을 추출하세요<br>
+          다운로드: <a href="https://shorturl.at/wQmNY" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 break-all rounded">https://shorturl.at/wQmNY</a></p>
         <label id="subDrop" class="drop flex items-center justify-center gap-3 py-4 rounded-2xl glass cursor-pointer text-center px-4">
           <svg viewBox="0 0 48 48" class="w-8 h-8 shrink-0" fill="none" stroke="#3a3a3f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 6h17l9 9v27H12z" fill="#fff"/><path d="M29 6v9h9"/><path d="M18 26h12M18 32h8"/></svg>
@@ -583,6 +625,18 @@
           </div>
           <button id="asrBtn" type="button" class="pill pill-dark w-full py-2.5 text-xs">🎙 영상 음성으로 자막 만들기</button>
           <p class="text-[11px] text-mute leading-relaxed">내 컴퓨터 영상 파일에서 작동하며 <b class="text-ink">OpenAI API 키</b>가 필요합니다(AI SETTING에서 OpenAI를 고르고 키 입력). 25MB가 넘으면 음성만 뽑아 10분 단위로 나눠 보냅니다. 유튜브 영상은 자막 파일을 직접 넣으세요.</p>
+        </div>
+        <div class="sunk rounded-[1.4rem] p-3 sm:p-4 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-bold">🌐 자막 번역 <span class="font-normal text-mute">— 시간은 그대로, 문장만 AI가 번역</span></span>
+            <select id="trLang" class="field !w-auto !py-1.5 !pl-3 !text-xs" aria-label="번역할 언어"></select>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="trBtn" type="button" class="pill pill-dark flex-1 px-4 py-2.5 text-xs whitespace-nowrap">🌐 AI로 자막 번역</button>
+            <button id="trSrt" type="button" class="pill px-4 py-2.5 text-xs whitespace-nowrap">번역 SRT ↓</button>
+            <button id="trClear" type="button" class="pill pill-danger px-4 py-2.5 text-xs whitespace-nowrap">번역 지우기</button>
+          </div>
+          <p id="trInfo" class="text-[11px] text-mute leading-relaxed"></p>
         </div>
         <div class="sunk rounded-[1.4rem] p-3 sm:p-4 space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-3">
@@ -793,6 +847,11 @@
 
 <script id="appMain">
 // 화면·저장 파일에 표시되는 앱 버전. 수정할 때마다 올림: 새 기능 → 둘째 자리, 고침·디자인 → 셋째 자리
+// v1.7.0  Share = 온라인 공유 링크(앱 웹 주소 + 압축 데이터, 열면 학생 시청 모드), 히스토리·영상 기록을 IndexedDB에 저장해 용량 초과 저장 오류 해결
+// v1.6.1  퀴즈 창을 영상 위 오버레이로 표시(넓은 화면·플레이어 전체 화면), 휴대폰은 바텀 시트 유지
+// v1.6.0  자막 번역(AI, 8개 언어): 원문/번역/함께 보기(자막 목록·CC), 번역 SRT 내려받기, 학생용 HTML에 포함
+// v1.5.4  Youtube Subtitle Builder 다운로드 링크 교체
+// v1.5.3  SUBTITLE · AI에 Youtube Subtitle Builder 안내(빨간 글씨) 추가
 // v1.5.2  유튜브 "스크립트 표시" 복사 형식(시간 줄·문장 줄 번갈아) 자막 읽기
 // v1.5.1  학생용 HTML 옆 Share 버튼(파일 공유 → 링크 공유 → 링크 복사)
 // v1.5.0  "이해 안 됨" 표시·집계, 영상 파일 자동 자막(Whisper), 시청 마감·최소 시청 비율, 서술형 성찰 질문,
@@ -805,7 +864,7 @@
 // v1.2.0  STEP 3 편집 모드/시청 모드, 퀴즈 4유형·힌트·통과 조건, 건너뛰기 막기, 자막 표시·검색, AI 요약·챕터, 속도·구간 반복·단축키
 // v1.1.0  STEP 2 AI 연결(Claude·OpenAI·Gemini, 연결 확인·모델 제안), 자막 기반 AI 퀴즈 배치, 키·강의 정보 저장, 접기·펼치기
 // v1.0.0  STEP 1 기본 골격: 유튜브·영상 파일 재생, 팝업 퀴즈, 타임스탬프 노트, 구간 북마크 바, 샘플 데이터
-const APP_VERSION = 'v1.5.2';
+const APP_VERSION = 'v1.7.0';
 const APP_NAME = '10 인터랙티브 학습용 동영상 플레이어';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -828,7 +887,9 @@ const hash = str => { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) {
 
 // 학생용 HTML이면 교수가 담아 둔 데이터가 들어 있음
 const EMBED = (() => { try { const e = $('embed'); return e ? JSON.parse(e.textContent) : null; } catch { return null; } })();
-const STUDENT = EMBED?.app === 'cliplab-student' ? EMBED : null;
+// 온라인 공유 링크(#cl=…)로 열면 링크 속 데이터로 학생 시청 모드 (데이터는 시작할 때 풀어서 채움)
+const SHARE_CODE = (location.hash.match(/^#cl=([zj])\.([\w-]+)$/) || []).slice(1);
+let STUDENT = SHARE_CODE.length ? { app: 'cliplab-student', pending: true, course: {} } : EMBED?.app === 'cliplab-student' ? EMBED : null;
 
 // 화면 붙이기: 원본 마크업은 <template>에 그대로 두어 학생용 HTML을 만들 때 다시 씀
 document.body.prepend($('appTpl').content.cloneNode(true));
@@ -854,6 +915,7 @@ const TYPES = { mcq: '객관식', ox: 'OX', short: '단답형', multi: '복수 �
 const CIRCLED = '①②③④⑤⑥⑦⑧';
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 let lastVid = '';
+let appUrl = ''; // 이 앱(index.html)을 올린 웹 주소: 온라인 공유 링크의 바탕
 let mode = 'watch';
 
 // ---------- 브라우저 저장 (막힌 환경에서도 앱은 동작) ----------
@@ -864,6 +926,42 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
   del(k) { try { localStorage.removeItem(k); } catch {} }
 };
+// 영상 기록·히스토리처럼 큰 데이터: IndexedDB (localStorage 5MB 한도를 넘어 저장 오류가 나던 문제 해결)
+// 예전 localStorage 값은 읽을 수 있고, 새로 저장하면 IndexedDB로 옮겨지며 localStorage 쪽은 지워 공간을 비움
+const idb = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    const r = indexedDB.open('cliplab', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => { dbp = null; rej(r.error); };
+  }));
+  const run = async (mode, fn) => {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('kv', mode), req = fn(t.objectStore('kv'));
+      t.oncomplete = () => res(req.result);
+      t.onerror = t.onabort = () => rej(t.error || req.error);
+    });
+  };
+  return { get: k => run('readonly', s => s.get(k)), set: (k, v) => run('readwrite', s => s.put(v, k)), del: k => run('readwrite', s => s.delete(k)) };
+})();
+const bigStore = {
+  async get(k, d = null) {
+    try { const v = await idb.get(k); if (v !== undefined) return v; } catch {}
+    return store.get(k, d);
+  },
+  // 성공하면 true, 실패하면 오류 이유(문장)
+  async set(k, v) {
+    try { await idb.set(k, JSON.parse(JSON.stringify(v))); store.del(k); return true; }
+    catch (e) {
+      if (store.set(k, v)) return true;
+      return /quota/i.test(`${e?.name} ${e?.message}`) ? '브라우저 저장 공간이 가득 찼습니다. VIDEO HISTORY에서 오래된 기록을 지운 뒤 다시 저장하세요.'
+        : `브라우저 저장이 막혀 있습니다(${e?.name || '알 수 없는 오류'}). 시크릿 창·미리보기 창이 아닌 크롬·엣지에서 직접 열어 주세요.`;
+    }
+  },
+  async del(k) { try { await idb.del(k); } catch {} store.del(k); }
+};
 function applySettings(s) {
   if (!s || typeof s !== 'object') return;
   for (const k in keys) if (typeof s.keys?.[k] === 'string') keys[k] = s.keys[k];
@@ -873,11 +971,12 @@ function applySettings(s) {
   for (const k in collapsed) if (typeof s.collapsed?.[k] === 'boolean') collapsed[k] = s.collapsed[k];
   if (typeof s.lastVid === 'string') lastVid = s.lastVid;
   if (s.mode === 'edit' || s.mode === 'watch') mode = s.mode;
+  if (typeof s.appUrl === 'string') appUrl = s.appUrl;
 }
 function saveSettings() {
   if (STUDENT) return false;
   const remember = $('rememberKey').checked;
-  return store.set(STORE_KEY, { provider, models, keys: remember ? keys : {}, remember, course, collapsed, lastVid, mode });
+  return store.set(STORE_KEY, { provider, models, keys: remember ? keys : {}, remember, course, collapsed, lastVid, mode, appUrl });
 }
 const storedRemember = () => store.get(STORE_KEY, {})?.remember !== false;
 if (!STUDENT) applySettings(store.get(STORE_KEY));
@@ -949,7 +1048,8 @@ function normRecord(r) {
     cues: (r.cues || []).filter(c => c && c.text).map(c => ({ s: +c.s || 0, e: +c.e || 0, text: String(c.text) })),
     approx: !!r.approx, updated: r.updated || Date.now(),
     deploy: { due: String(r.deploy?.due || ''), minWatch: Math.min(100, Math.max(0, Math.round(+r.deploy?.minWatch || 0))), url: String(r.deploy?.url || '') },
-    endSummary: (Array.isArray(r.endSummary) ? r.endSummary : []).map(String).filter(s => s.trim())
+    endSummary: (Array.isArray(r.endSummary) ? r.endSummary : []).map(String).filter(s => s.trim()),
+    tr: Array.isArray(r.tr?.texts) && r.tr.texts.length ? { lang: String(r.tr.lang || ''), texts: r.tr.texts.map(x => String(x ?? '')) } : null // 자막 번역 (cues와 같은 순서)
   };
   if (!o.vid) o.vid = vidOf(o.src);
   sortAll(o);
@@ -973,11 +1073,11 @@ const isDone = q => !!(prog.results[q.id]?.correct || prog.results[q.id]?.passed
 let saveTimer = null;
 function persist() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
+  saveTimer = setTimeout(async () => {
     if (!rec) return;
     rec.updated = Date.now();
-    const ok = STUDENT ? store.set(stuKey(), prog) : store.set('cliplab-video:' + rec.vid, rec);
-    $('saveState').textContent = ok ? `· ✔ 자동 저장 ${new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}` : '· ⚠ 브라우저 저장이 막혀 새로고침하면 지워집니다';
+    const ok = STUDENT ? store.set(stuKey(), prog) : await bigStore.set('cliplab-video:' + rec.vid, rec);
+    $('saveState').textContent = ok === true ? `· ✔ 자동 저장 ${new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}` : `· ⚠ 저장 실패: ${ok || '브라우저 저장이 막혀 새로고침하면 지워집니다'}`;
   }, 300);
 }
 
@@ -1218,7 +1318,7 @@ function renderCC(t) {
   $('ccSizeLabel').textContent = CC_SIZES.find(s => s[0] === ccPref.size)[1];
   $('ccBox').className = `cc-box cc-${ccPref.size}`;
   let text = '';
-  if (has && ccPref.on) { const c = rec.cues.find(c => c.s <= t + 0.1 && t < c.e + 0.3); text = c ? c.text : ''; }
+  if (has && ccPref.on) { const i = rec.cues.findIndex(c => c.s <= t + 0.1 && t < c.e + 0.3); text = i >= 0 ? cueLines(i).join('\n') : ''; }
   if ($('ccText').textContent !== text) $('ccText').textContent = text;
   $('ccBox').classList.toggle('hidden', !text);
 }
@@ -1333,11 +1433,22 @@ function widgetHTML(q) {
   return (multi ? '<p class="text-[11px] text-mute mb-2">정답을 모두 고르세요.</p>' : '') + q.options.map((o, j) =>
     `<label class="opt ${multi ? 'multi' : ''}" data-j="${j}"><input type="${multi ? 'checkbox' : 'radio'}" name="qm" value="${j}" class="sr-only"><span><span class="bullet">${CIRCLED[j]}</span><span class="text-sm min-w-0 break-words">${esc(o)}</span></span></label>`).join('');
 }
-function exitFS() { try { if (document.fullscreenElement) document.exitFullscreen(); } catch {} }
+// 플레이어 상자째 전체 화면이면 그대로 두고(퀴즈가 영상 위에 뜸), 유튜브 자체 전체 화면만 나감
+function exitFS() { try { if (document.fullscreenElement && document.fullscreenElement !== $('playerBox')) document.exitFullscreen(); } catch {} }
+// 퀴즈 창 위치: 넓은 화면·전체 화면은 영상 위 오버레이, 휴대폰은 아래에서 올라오는 시트
+function placeQuizModal() {
+  const m = $('quizModal');
+  const overlay = document.fullscreenElement === $('playerBox') || matchMedia('(min-width: 768px)').matches;
+  if (overlay && m.parentElement !== $('playerBox')) $('playerBox').appendChild(m);
+  if (!overlay && m.parentElement !== document.body) document.body.appendChild(m);
+  m.classList.toggle('in-player', overlay);
+  return overlay;
+}
 function openQuiz(q, opts = {}) {
   modalQ = q; modalOpts = opts; modalOpen = true;
   exitFS();
   player.pause();
+  const overlay = placeQuizModal();
   const idx = rec.quizzes.indexOf(q) + 1;
   $('qmMeta').textContent = `—— ${idx}/${rec.quizzes.length} · ${fmt(q.t)} · ${TYPES[q.type]}${opts.preview ? ' · 미리보기' : ''}`;
   $('qmTitle').textContent = q.q;
@@ -1346,8 +1457,9 @@ function openQuiz(q, opts = {}) {
   resetQuizBody();
   if (opts.skipped) fbBox('info', '🚫 건너뛰기 막기: 이 퀴즈를 풀어야 다음 구간을 볼 수 있어요.');
   $('quizModal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  setTimeout(() => $('qmBody').querySelector('input')?.focus(), 50);
+  if (overlay) $('playerBox').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  else document.body.style.overflow = 'hidden';
+  setTimeout(() => $('qmBody').querySelector('input, textarea')?.focus({ preventScroll: overlay }), 50);
 }
 function resetQuizBody() {
   const q = modalQ;
@@ -1533,18 +1645,28 @@ $('noteList').addEventListener('click', e => {
 });
 
 // ---------- 자막: 표시 · 검색 · 클릭 이동 ----------
+// 원문·번역 표시: 번역이 없거나 빈 줄이면 원문
+const cueView = () => rec?.tr ? (ccPref.view || 'both') : 'orig';
+function cueLines(i) {
+  const o = rec.cues[i].text, t = rec.tr?.texts[i] || '', v = cueView();
+  return v === 'orig' || !t ? [o] : v === 'tr' ? [t] : [o, t];
+}
 function renderCues() {
   const cues = rec.cues, qy = $('cueSearch').value.trim();
   $('cueSec').classList.toggle('hidden', !cues.length);
   $('cueCount').textContent = cues.length;
+  $('cueViewWrap').classList.toggle('hidden', !rec.tr);
+  document.querySelectorAll('[data-cue-view]').forEach(b => b.setAttribute('aria-pressed', b.dataset.cueView === cueView()));
   if (!cues.length) return;
-  const re = qy ? new RegExp(qy.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi') : null;
+  const rx = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = qy ? new RegExp(rx(qy), 'i') : null, mark = s => re ? esc(s).replace(new RegExp(rx(esc(qy)), 'gi'), m => `<mark>${m}</mark>`) : esc(s);
   let hits = 0;
   $('cueList').innerHTML = cues.map((c, i) => {
-    if (re && !re.test(c.text)) return '';
+    const lines = cueLines(i);
+    if (re && !lines.some(l => re.test(l))) return '';
     hits++;
-    const txt = re ? esc(c.text).replace(new RegExp(esc(qy).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), m => `<mark>${m}</mark>`) : esc(c.text);
-    return `<button type="button" class="cue" data-i="${i}" data-t="${c.s}"><span class="tchip">${fmt(c.s)}</span><span class="text-[13px] leading-relaxed min-w-0 break-words">${txt}</span></button>`;
+    return `<button type="button" class="cue" data-i="${i}" data-t="${c.s}"><span class="tchip">${fmt(c.s)}</span><span class="min-w-0 break-words leading-relaxed">${lines.map((l, k) =>
+      `<span class="block ${k ? 'text-[12px] text-[#5e5e64]' : 'text-[13px]'}">${mark(l)}</span>`).join('')}</span></button>`;
   }).join('') || '<p class="text-xs text-mute text-center py-6">검색 결과가 없습니다.</p>';
   $('cueHits').classList.toggle('hidden', !qy);
   $('cueHits').textContent = `"${qy}" ${hits}건${rec.approx ? '' : ''}`;
@@ -1552,6 +1674,58 @@ function renderCues() {
   highlight(player.time());
 }
 $('cueSearch').addEventListener('input', renderCues);
+$('cueViewWrap').addEventListener('click', e => {
+  const b = e.target.closest('[data-cue-view]');
+  if (!b) return;
+  ccPref.view = b.dataset.cueView; store.set('cliplab-cc', ccPref);
+  renderCues(); renderCC(player.time());
+});
+
+// ---------- 자막 번역: 시간은 그대로 두고 문장만 AI 번역 ----------
+const TR_LANGS = { ko: '한국어', en: '영어(English)', zh: '중국어 간체(简体中文)', 'zh-TW': '중국어 번체(繁體中文)', ja: '일본어(日本語)', vi: '베트남어(Tiếng Việt)', es: '스페인어(Español)', fr: '프랑스어(Français)' };
+$('trLang').innerHTML = Object.entries(TR_LANGS).map(([k, v]) => `<option value="${k}" ${k === 'en' ? 'selected' : ''}>${v}</option>`).join('');
+function renderTr() {
+  const tr = rec.tr;
+  $('trSrt').disabled = $('trClear').disabled = !tr;
+  $('trInfo').textContent = !rec.cues.length ? '먼저 자막을 넣으세요. 번역본은 자막 목록·CC 자막에서 원문/번역/함께로 골라 볼 수 있고 학생용 HTML에도 담깁니다.'
+    : tr ? `현재 번역: ${TR_LANGS[tr.lang] || tr.lang} · ${tr.texts.filter(Boolean).length}/${rec.cues.length}문장 · 자막 목록에서 원문/번역/함께를 고르세요.`
+    : `자막 ${rec.cues.length}문장 · 번역본은 학생용 HTML에도 담겨 학생이 원문/번역/함께로 볼 수 있습니다.`;
+}
+$('trBtn').onclick = async () => {
+  if (!aiReady($('aiMsg'))) return;
+  const lang = $('trLang').value, name = TR_LANGS[lang], cues = rec.cues, btn = $('trBtn');
+  if (rec.tr && !confirm(`지금 번역(${TR_LANGS[rec.tr.lang] || rec.tr.lang})을 ${name} 번역으로 바꿀까요?`)) return;
+  const out = new Array(cues.length).fill(''), B = 60;
+  setBusy(btn, true, '번역 준비 중…');
+  try {
+    for (let i = 0; i < cues.length; i += B) {
+      btn.innerHTML = `<span class="spinner"></span>번역 중… ${Math.round(i / cues.length * 100)}%`;
+      const part = cues.slice(i, i + B);
+      const ask = () => aiJSON(`다음은 대학 강의 영상 자막 ${part.length}줄입니다. 각 줄을 ${name}로 자연스럽게 번역하세요.
+- 줄 수와 순서를 그대로 지켜 정확히 ${part.length}개 (줄을 합치거나 나누지 말 것, 앞의 번호는 빼고)
+- 전문 용어는 정확하게, 자막답게 간결하게
+- 이미 ${name}인 줄은 그대로 둠
+다른 설명 없이 JSON만 출력하세요: {"lines":["", ...]}
+
+${part.map((c, k) => `${k + 1}. ${c.text}`).join('\n')}`);
+      let lines = ((await ask()).lines || []).map(String);
+      if (lines.length !== part.length) lines = ((await ask()).lines || []).map(String); // 줄 수가 어긋나면 한 번 더
+      lines.slice(0, part.length).forEach((l, k) => out[i + k] = l.replace(new RegExp(`^\\s*${k + 1}[.)]\\s*`), '').trim());
+    }
+    rec.tr = { lang, texts: out };
+    if (!ccPref.view || ccPref.view === 'orig') { ccPref.view = 'both'; store.set('cliplab-cc', ccPref); }
+    persist(); renderCues(); renderTr(); renderCC(player.time());
+    const miss = out.filter(x => !x).length;
+    flash($('aiMsg'), miss ? 'info' : 'ok', `✔ 자막 ${cues.length}문장을 ${name}로 번역했습니다.${miss ? ` (${miss}문장은 번역을 받지 못해 원문으로 보입니다. 다시 번역하면 채워질 수 있어요)` : ''} 자막 목록과 CC 자막에서 원문/번역/함께를 고를 수 있습니다.`);
+  } catch (err) { flash($('aiMsg'), 'ng', '✘ 자막 번역 실패: ' + err.message); }
+  finally { setBusy(btn, false); }
+};
+$('trSrt').onclick = () => {
+  if (!rec.tr) return;
+  const srt = rec.cues.map((c, i) => `${i + 1}\n${srtTime(c.s)} --> ${srtTime(c.e)}\n${rec.tr.texts[i] || c.text}\n`).join('\n');
+  saveBlob(new Blob(['﻿' + srt], { type: 'text/plain;charset=utf-8' }), `자막_${rec.tr.lang}_${safeName(rec.title)}.srt`);
+};
+$('trClear').onclick = () => { if (!rec.tr || !confirm('자막 번역을 지울까요? (원문 자막은 그대로)')) return; rec.tr = null; persist(); renderCues(); renderTr(); renderCC(player.time()); };
 $('cueList').addEventListener('click', e => { const c = e.target.closest('.cue'); if (c) seekTo(+c.dataset.t); });
 
 // SRT · VTT · "[mm:ss] 문장" · 일반 텍스트 → [{s, e, text}]
@@ -1605,15 +1779,16 @@ function parseSubs(text, d) {
 function applySubs(text, from) {
   const { cues, approx } = parseSubs(text, dur());
   if (!cues.length) return flash($('aiMsg'), 'ng', '✘ 자막을 읽지 못했습니다. SRT·VTT 파일이나 대본 텍스트인지 확인하세요.');
-  rec.cues = cues; rec.approx = approx;
+  rec.cues = cues; rec.approx = approx; rec.tr = null; // 자막이 바뀌면 번역은 다시
   persist(); renderCues(); renderSubInfo();
   flash($('aiMsg'), 'ok', `✔ ${from} 자막 ${cues.length}문장을 적용했습니다.${approx ? ' 시간 정보가 없어 영상 길이에 맞춰 시간을 배분했습니다(대략적인 위치).' : ''}`);
 }
 function renderSubInfo() {
   $('subInfo').textContent = rec.cues.length ? `현재 자막 ${rec.cues.length}문장${rec.approx ? ' (시간 자동 배분)' : ''}` : '자막 없음';
+  renderTr();
 }
 $('subApply').onclick = () => { const v = $('subText').value.trim(); if (!v) return flash($('aiMsg'), 'info', '대본을 붙여넣거나 자막 파일을 첨부하세요.'); applySubs(v, '붙여넣은'); };
-$('subClear').onclick = () => { if (!rec.cues.length || !confirm('자막을 지울까요?')) return; rec.cues = []; persist(); renderCues(); renderSubInfo(); };
+$('subClear').onclick = () => { if (!rec.cues.length || !confirm('자막을 지울까요?')) return; rec.cues = []; rec.tr = null; persist(); renderCues(); renderSubInfo(); };
 function readSubFile(file) {
   if (!file) return;
   if (file.size > 5 * 1024 * 1024) return flash($('aiMsg'), 'ng', '✘ 5MB 이하 자막 파일만 불러올 수 있습니다.');
@@ -1660,30 +1835,30 @@ function openRecord(r, opts = {}) {
   if (!STUDENT) { lastVid = rec.vid; saveSettings(); }
   renderAll();
 }
-function loadFromStorage(src, title) {
+async function loadFromStorage(src, title) {
   const vid = vidOf(src);
-  return store.get('cliplab-video:' + vid) || (vid === 'yt:' + SAMPLE_ID ? sampleRecord() : newRecord(src, title));
+  return await bigStore.get('cliplab-video:' + vid) || (vid === 'yt:' + SAMPLE_ID ? sampleRecord() : newRecord(src, title));
 }
-$('loadUrl').onclick = () => {
+$('loadUrl').onclick = async () => {
   const src = parseSource($('urlInput').value);
   if (!src) return flash($('srcMsg'), 'ng', '✘ 유튜브 주소(youtu.be/… · youtube.com/watch?v=…) 또는 .mp4 · .webm 주소를 넣으세요.');
-  openRecord(loadFromStorage(src));
+  openRecord(await loadFromStorage(src));
   flash($('srcMsg'), 'ok', `✔ 영상을 불러왔습니다. ${rec.quizzes.length ? `저장된 퀴즈 ${rec.quizzes.length}개가 함께 열렸습니다.` : '편집 모드에서 퀴즈와 북마크를 넣어 보세요.'}`);
 };
 $('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('loadUrl').click(); });
-function openFile(file) {
+async function openFile(file) {
   if (!file) return;
   if (!/^video\//.test(file.type) && !/\.(mp4|webm|m4v|ogv)$/i.test(file.name)) return flash($('srcMsg'), 'ng', '✘ .mp4 · .webm 영상 파일을 선택하세요.');
   // 기록을 열어 둔 채 파일을 기다리는 중이면 그 기록에 연결
   if (rec?.src.kind === 'file' && !player.kind) return attachFile(file);
   const src = { kind: 'file', name: file.name, size: file.size };
-  const r = store.get('cliplab-video:' + vidOf(src)) || newRecord(src, file.name.replace(/\.[^.]+$/, ''));
+  const r = await bigStore.get('cliplab-video:' + vidOf(src)) || newRecord(src, file.name.replace(/\.[^.]+$/, ''));
   openRecord(r, { file });
   flash($('srcMsg'), 'ok', `✔ "${file.name}"을 불러왔습니다. 영상 파일은 이 기기에서만 재생되며, 퀴즈·노트는 이 파일 이름·크기로 자동 저장됩니다.`);
 }
 $('fileInput').onchange = e => { openFile(e.target.files[0]); e.target.value = ''; };
 dropZone($('playerBox'), f => STUDENT ? attachFile(f[0]) : openFile(f[0]));
-$('sampleBtn').onclick = () => { openRecord(loadFromStorage({ kind: 'yt', id: SAMPLE_ID })); flash($('srcMsg'), 'ok', '✔ 샘플 영상과 샘플 퀴즈 3개 · 북마크 · 노트를 불러왔습니다.'); };
+$('sampleBtn').onclick = async () => { openRecord(await loadFromStorage({ kind: 'yt', id: SAMPLE_ID })); flash($('srcMsg'), 'ok', '✔ 샘플 영상과 샘플 퀴즈 3개 · 북마크 · 노트를 불러왔습니다.'); };
 if (isFileProto) { $('fileNote').textContent = '⚠ ' + FILE_PROTO_TIP; $('fileNote').classList.remove('hidden'); }
 
 // ---------- 모드: 교수용 편집 / 학생용 시청 ----------
@@ -2196,19 +2371,20 @@ function stampName() { const d = new Date(); return `${d.getFullYear()}${pad(d.g
 function download(content, prefix, ext = 'html', type = 'text/html') { saveBlob(new Blob([content], { type: `${type};charset=utf-8` }), `${prefix}_${stampName()}.${ext}`); }
 
 // ---------- VIDEO HISTORY ----------
-let history = STUDENT ? [] : store.get(HIST_KEY, []);
-if (!Array.isArray(history)) history = [];
-function saveToHistory() {
+let history = []; // 시작할 때 IndexedDB에서 불러옴
+async function saveToHistory() {
   if (!rec) return;
-  const snap = structuredClone(rec);
+  const snap = JSON.parse(JSON.stringify(rec));
   delete snap.hid;
   const entry = { hid: rec.hid || uid(), date: Date.now(), vid: rec.vid, title: rec.title || '(제목 없음)', subject: course.course, quizCount: rec.quizzes.length, snap };
   const i = history.findIndex(h => h.hid === entry.hid);
   if (i >= 0) history[i] = entry; else history.unshift(entry);
   rec.hid = entry.hid;
-  const ok = store.set(HIST_KEY, history);
+  $('saveHistory').disabled = true;
+  const ok = await bigStore.set(HIST_KEY, history);
+  $('saveHistory').disabled = false;
   persist(); renderHistory();
-  flash($('srcMsg'), ok ? 'ok' : 'ng', ok ? `✔ VIDEO HISTORY에 ${i >= 0 ? '덮어써' : '새로'} 저장했습니다. (퀴즈 ${entry.quizCount}개)` : '✘ 브라우저 저장이 막혀 히스토리를 저장하지 못했습니다.');
+  flash($('srcMsg'), ok === true ? 'ok' : 'ng', ok === true ? `✔ VIDEO HISTORY에 ${i >= 0 ? '덮어써' : '새로'} 저장했습니다. (퀴즈 ${entry.quizCount}개)` : `✘ 히스토리를 저장하지 못했습니다. ${ok}`);
 }
 $('saveHistory').onclick = saveToHistory;
 function renderHistory() {
@@ -2241,7 +2417,7 @@ $('histBody').addEventListener('click', e => {
     if (!confirm(`"${h.title}" 기록을 삭제할까요?`)) return;
     history.splice(history.indexOf(h), 1);
     if (rec?.hid === h.hid) rec.hid = null;
-    store.set(HIST_KEY, history); renderHistory();
+    bigStore.set(HIST_KEY, history).then(ok => ok === true || flash($('srcMsg'), 'ng', '✘ 삭제를 저장하지 못했습니다. ' + ok)); renderHistory();
   }
 });
 
@@ -2278,19 +2454,68 @@ function downloadStudentHTML(r) {
 }
 $('stuHtml').onclick = () => downloadStudentHTML(rec);
 // 공유: 휴대폰 등은 학생용 HTML 파일을 바로 공유, 안 되면 웹 주소 공유 → 주소 복사 → 내려받기 안내
-$('stuShare').onclick = async () => {
-  const title = `${rec.title || '학습 영상'} · 학생용`, text = `${courseText() ? courseText() + ' · ' : ''}${rec.title || '학습 영상'} 시청 과제`;
-  const url = qrUrlOK(rec.deploy.url) ? rec.deploy.url : '';
-  try {
-    const file = new File([buildStudentHTML(rec)], `학생용_${safeName(rec.title)}.html`, { type: 'text/html' });
-    if (navigator.canShare?.({ files: [file] })) { await navigator.share({ title, text, files: [file] }); return flash($('deployNote'), 'ok', '✔ 학생용 HTML 파일을 공유했습니다.'); }
-    if (url && navigator.share) { await navigator.share({ title, text, url }); return flash($('deployNote'), 'ok', '✔ 학생용 링크를 공유했습니다.'); }
-    if (url) { await navigator.clipboard.writeText(`${text}\n${url}`); return flash($('deployNote'), 'ok', '✔ 공유 문구와 학생용 링크를 복사했습니다. 메신저·메일·LMS 공지에 붙여넣으세요.'); }
-    flash($('deployNote'), 'info', '이 브라우저는 HTML 파일을 바로 공유할 수 없습니다. "학생용 HTML 내려받기"로 받아 LMS에 올리고, 그 웹 주소를 아래 QR 칸에 넣으면 Share로 링크를 공유·복사할 수 있습니다.');
-  } catch (err) {
-    if (err.name !== 'AbortError') flash($('deployNote'), 'ng', '✘ 공유하지 못했습니다: ' + err.message);
-  }
+// ---------- 온라인 공유 링크: 앱 웹 주소 + #cl=(압축한 영상·퀴즈·북마크·자막) ----------
+// 서버 없이 링크 하나로 배포. 링크를 연 학생 화면은 학생용 HTML과 같은 시청 모드
+const b64u = {
+  enc: bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
+  dec: str => Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))
 };
+const streamBytes = async (bytes, tf) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(tf)).arrayBuffer());
+async function packShare(obj) {
+  const raw = new TextEncoder().encode(JSON.stringify(obj));
+  return window.CompressionStream ? 'z.' + b64u.enc(await streamBytes(raw, new CompressionStream('deflate-raw'))) : 'j.' + b64u.enc(raw);
+}
+async function unpackShare([kind, data]) {
+  let bytes = b64u.dec(data);
+  if (kind === 'z') bytes = await streamBytes(bytes, new DecompressionStream('deflate-raw'));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+const isLocalHost = h => /^(localhost|127\.|0\.0\.0\.0|\[::1\]$)/.test(h) || /\.(localhost|test)$/.test(h);
+const pageAppUrl = () => /^https?:$/.test(location.protocol) && !isLocalHost(location.hostname) ? location.origin + location.pathname : '';
+function shareBase() {
+  const u = ($('appUrl').value.trim() || pageAppUrl()).replace(/#.*$/, '');
+  return /^https?:\/\/\S+\.\S+/i.test(u) ? u : '';
+}
+async function makeShareLink() {
+  const record = JSON.parse(JSON.stringify(rec));
+  record.notes = []; delete record.hid;
+  if (!$('shareCues').checked) { record.cues = []; record.tr = null; }
+  const code = await packShare({ app: 'cliplab-student', appVersion: APP_VERSION, course: { ...course }, record, createdAt: Date.now() });
+  return `${shareBase()}#cl=${code}`;
+}
+$('appUrl').addEventListener('input', () => { appUrl = $('appUrl').value.trim(); saveSettings(); });
+$('stuShare').onclick = async () => {
+  const base = shareBase();
+  if (!base) {
+    flash($('deployNote'), 'info', '온라인 링크를 만들려면 "앱 웹 주소"가 필요합니다. 이 index.html을 GitHub Pages·Netlify 등에 한 번 올리고 그 주소(https://…)를 넣으세요. 이후에는 영상마다 Share만 누르면 됩니다.');
+    $('appUrl').focus();
+    return;
+  }
+  const btn = $('stuShare');
+  setBusy(btn, true, '링크 만드는 중');
+  try {
+    const link = await makeShareLink();
+    $('shareLink').value = link;
+    $('shareOpen').href = link;
+    $('shareOut').classList.remove('hidden');
+    const kb = (link.length / 1024).toFixed(1), long = link.length > 8000;
+    $('shareLen').textContent = `링크 길이 ${kb}KB${long ? ' · 길어서 일부 메신저·게시판에서 잘릴 수 있습니다. "자막·번역 포함"을 끄면 짧아집니다.' : ''}${link.length > 2000 ? ' · QR 코드로 만들기엔 길어 QR은 학생용 HTML 웹 주소로 만드세요.' : ' · 아래 QR 칸에도 넣었습니다.'}`;
+    if (link.length <= 2000) { rec.deploy.url = link; persist(); $('qrUrl').value = link; $('qrMake').click(); }
+    const title = `${rec.title || '학습 영상'} · 학생용`, text = `${courseText() ? courseText() + ' · ' : ''}${rec.title || '학습 영상'} 시청 과제`;
+    if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+      await navigator.share({ title, text, url: link });
+      flash($('deployNote'), 'ok', '✔ 온라인 공유 링크를 공유했습니다.');
+    } else {
+      await navigator.clipboard.writeText(link).then(() => flash($('deployNote'), 'ok', '✔ 온라인 공유 링크를 만들어 복사했습니다. 메신저·메일·LMS 공지에 붙여넣으세요. 학생이 누르면 바로 시청 모드로 열립니다.'),
+        () => flash($('deployNote'), 'ok', '✔ 온라인 공유 링크를 만들었습니다. 아래 링크를 복사해 보내세요.'));
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') flash($('deployNote'), 'ng', '✘ 공유 링크를 만들지 못했습니다: ' + err.message);
+  } finally { setBusy(btn, false); }
+};
+$('shareCopy').onclick = () => navigator.clipboard.writeText($('shareLink').value)
+  .then(() => flash($('deployNote'), 'ok', '✔ 링크를 복사했습니다.'), () => { $('shareLink').select(); flash($('deployNote'), 'info', '링크를 선택해 두었습니다. Ctrl+C로 복사하세요.'); });
+$('shareCues').addEventListener('change', () => $('shareOut').classList.add('hidden'));
 // 시청 마감 · 최소 시청 비율
 $('dueAt').addEventListener('change', () => { rec.deploy.due = $('dueAt').value; persist(); });
 $('minWatch').addEventListener('input', () => { rec.deploy.minWatch = Math.min(100, Math.max(0, Math.round(+$('minWatch').value || 0))); persist(); });
@@ -2668,7 +2893,7 @@ $('asrBtn').onclick = async () => {
     }
     if (!cues.length) throw new Error('인식된 말소리가 없습니다.');
     cues.forEach((c, i) => { if (!c.e || c.e <= c.s) c.e = cues[i + 1]?.s ?? c.s + 4; });
-    rec.cues = cues; rec.approx = false;
+    rec.cues = cues; rec.approx = false; rec.tr = null;
     $('subText').value = cues.map((c, i) => `${i + 1}\n${srtTime(c.s)} --> ${srtTime(c.e)}\n${c.text}\n`).join('\n');
     persist(); renderCues(); renderSubInfo();
     flash($('aiMsg'), 'ok', `✔ 음성 인식으로 자막 ${cues.length}문장을 만들었습니다. 아래 대본 칸에서 확인·수정한 뒤 "자막 적용"을 누를 수 있어요. 이제 AI 퀴즈·챕터·요약을 쓸 수 있습니다.`);
@@ -2910,16 +3135,34 @@ function renderAll() {
 selectProvider(provider);
 document.querySelector(`input[name=provider][value=${provider}]`).checked = true;
 updateBadge(); renderSummaries(); renderCourseLine(); showCourseSaved(false);
-if (STUDENT) {
-  ['aiSec', 'sourceSec', 'setup', 'gradebook', 'modeTabs', 'aiSummary'].forEach(id => $(id).classList.add('hidden'));
-  $('stuBadge').classList.remove('hidden');
-  $('stuCard').classList.remove('hidden');
-  openRecord(STUDENT.record);
-  if (!prog.student) openStuModal();
-} else {
-  const last = lastVid && store.get('cliplab-video:' + lastVid);
-  openRecord(last || sampleRecord());
-}
+$('appUrl').value = appUrl;
+$('appUrl').placeholder = pageAppUrl() || '예: https://아이디.github.io/cliplab/';
+(async () => {
+  if (STUDENT) {
+    ['aiSec', 'sourceSec', 'setup', 'gradebook', 'modeTabs', 'aiSummary'].forEach(id => $(id).classList.add('hidden'));
+    $('stuBadge').classList.remove('hidden');
+    $('stuCard').classList.remove('hidden');
+    if (STUDENT.pending) {
+      // 온라인 공유 링크: 링크 속 데이터 풀기
+      try {
+        const d = await unpackShare(SHARE_CODE);
+        if (d?.app !== 'cliplab-student' || !d.record) throw new Error('형식');
+        STUDENT = d;
+        Object.assign(course, d.course || {});
+        renderCourseLine();
+      } catch {
+        return showPlayerMsg('<b>⚠ 공유 링크를 열 수 없습니다.</b><span>링크가 잘렸거나 손상되었습니다. 링크 전체를 다시 받아 열어 주세요.</span>');
+      }
+    }
+    openRecord(STUDENT.record);
+    if (!prog.student) openStuModal();
+  } else {
+    history = await bigStore.get(HIST_KEY, []);
+    if (!Array.isArray(history)) history = [];
+    const last = lastVid && await bigStore.get('cliplab-video:' + lastVid);
+    openRecord(last || sampleRecord());
+  }
+})();
 </script>
 </body>
 </html>
