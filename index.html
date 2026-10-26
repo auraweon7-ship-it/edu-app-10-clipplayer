@@ -4,17 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>10 인터랙티브 학습용 동영상 플레이어</title>
-<script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-<script id="twConfig">
-  tailwind.config = {
-    theme: { extend: {
-      colors: { ink: '#1d1d1f', line: 'rgba(0,0,0,.08)', mute: '#77777d' },
-      fontFamily: { sans: ['Inter', '"Noto Sans KR"', 'system-ui', 'sans-serif'], disp: ['Inter', '"Noto Sans KR"', 'sans-serif'] }
-    } }
-  };
-</script>
 <style id="appStyle">
   /* ---------- Soft UI 토큰: 밝은 회색 단색 바탕 + 돌출 카드 + 파란 강조색 하나 ---------- */
   :root {
@@ -170,6 +161,13 @@
   .mk-note::before { width: .5rem; height: .5rem; border-radius: 9999px; background: #8a8a90; }
   .mk-conf { bottom: 0; }
   .mk-conf::before { content: '✕'; font-size: .72rem; font-weight: 700; line-height: 1; color: #4a4a50; }
+  .mk-ask { top: 0; }
+  .mk-ask::before { content: '?'; font-size: .78rem; font-weight: 800; line-height: 1; color: #4a4a50; }
+  .mk-quiz.info::before { transform: none; border-radius: 2px; background: #55555b; }
+  .mk-quiz.info:hover::before { transform: scale(1.25); }
+  .dist { display: inline-flex; align-items: center; gap: .25rem; padding: .1rem .45rem; border-radius: 9999px; background: var(--sunk); font-size: 10.5px; font-family: Inter, 'Noto Sans KR'; }
+  .dist.right { background: rgba(var(--ok),.14); color: #2a6b3d; font-weight: 700; }
+  .dist.top { box-shadow: inset 0 0 0 1.5px rgba(var(--ng),.55); color: #9a3027; font-weight: 700; }
   /* 영상 위 자막 (접근성) */
   .cc-box { position: absolute; left: 0; right: 0; bottom: 11%; display: flex; justify-content: center; padding: 0 6%; pointer-events: none; z-index: 5; text-align: center; }
   .tab-btn[aria-pressed="true"] { background: var(--face); color: var(--ink); box-shadow: var(--raise-sm); }
@@ -248,6 +246,7 @@
   @media (prefers-reduced-motion: reduce) { .sheet, .flash { animation: none; } .note-list, .cue-list { scroll-behavior: auto; } }
   [hidden] { display: none !important; }
 </style>
+<style id="twCss">*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.16 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:Inter,Noto Sans KR,system-ui,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.container{width:100%}@media (min-width:640px){.container{max-width:640px}}@media (min-width:768px){.container{max-width:768px}}@media (min-width:1024px){.container{max-width:1024px}}@media (min-width:1280px){.container{max-width:1280px}}@media (min-width:1536px){.container{max-width:1536px}}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}.collapse{visibility:collapse}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.z-10{z-index:10}.col-span-2{grid-column:span 2/span 2}.-m-1{margin:-.25rem}.mx-auto{margin-left:auto;margin-right:auto}.-mt-1{margin-top:-.25rem}.mb-1\.5{margin-bottom:.375rem}.mb-2{margin-bottom:.5rem}.ml-1{margin-left:.25rem}.ml-auto{margin-left:auto}.mr-1{margin-right:.25rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.grid{display:grid}.contents{display:contents}.hidden{display:none}.\!h-6{height:1.5rem!important}.\!h-7{height:1.75rem!important}.h-10{height:2.5rem}.h-12{height:3rem}.h-2{height:.5rem}.h-4{height:1rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-full{height:100%}.max-h-\[16rem\]{max-height:16rem}.max-h-\[20rem\]{max-height:20rem}.max-h-\[22rem\]{max-height:22rem}.min-h-\[6rem\]{min-height:6rem}.min-h-screen{min-height:100vh}.\!w-6{width:1.5rem!important}.\!w-7{width:1.75rem!important}.\!w-\[5\.6rem\]{width:5.6rem!important}.\!w-\[5rem\]{width:5rem!important}.\!w-auto{width:auto!important}.w-10{width:2.5rem}.w-12{width:3rem}.w-14{width:3.5rem}.w-2{width:.5rem}.w-4{width:1rem}.w-6{width:1.5rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-\[2\.4rem\]{width:2.4rem}.w-\[4\.6rem\]{width:4.6rem}.w-\[9\.5rem\]{width:9.5rem}.w-\[9rem\]{width:9rem}.w-fit{width:-moz-fit-content;width:fit-content}.w-full{width:100%}.min-w-0{min-width:0}.min-w-\[12rem\]{min-width:12rem}.min-w-\[8rem\]{min-width:8rem}.\!max-w-\[32rem\]{max-width:32rem!important}.max-w-7xl{max-width:80rem}.max-w-\[12rem\]{max-width:12rem}.max-w-\[14rem\]{max-width:14rem}.max-w-\[16rem\]{max-width:16rem}.max-w-\[22rem\]{max-width:22rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.basis-40{flex-basis:10rem}.basis-60{flex-basis:15rem}.table-fixed{table-layout:fixed}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.resize-none{resize:none}.resize-y{resize:vertical}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-cols-\[minmax\(0\2c 1fr\)_auto\]{grid-template-columns:minmax(0,1fr) auto}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.gap-x-3{-moz-column-gap:.75rem;column-gap:.75rem}.gap-x-4{-moz-column-gap:1rem;column-gap:1rem}.gap-y-1{row-gap:.25rem}.gap-y-2{row-gap:.5rem}.space-y-0\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.125rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.125rem*var(--tw-space-y-reverse))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem*var(--tw-space-y-reverse))}.space-y-8>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem*var(--tw-space-y-reverse))}.self-center{align-self:center}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.overflow-x-hidden{overflow-x:hidden}.truncate{overflow:hidden;text-overflow:ellipsis}.truncate,.whitespace-nowrap{white-space:nowrap}.whitespace-pre-wrap{white-space:pre-wrap}.break-words{overflow-wrap:break-word}.break-all{word-break:break-all}.\!rounded-none{border-radius:0!important}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-\[1\.4rem\]{border-radius:1.4rem}.rounded-\[1\.6rem\]{border-radius:1.6rem}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:.75rem}.\!border-0{border-width:0!important}.border{border-width:1px}.\!border-x-0{border-left-width:0!important;border-right-width:0!important}.\!border-b-0{border-bottom-width:0!important}.\!border-t-0{border-top-width:0!important}.border-t{border-top-width:1px}.border-black\/\[0\.06\]{border-color:rgba(0,0,0,.06)}.bg-\[\#1d1d1f\]\/90{background-color:rgba(29,29,31,.9)}.bg-\[\#2f7bf6\]{--tw-bg-opacity:1;background-color:rgb(47 123 246/var(--tw-bg-opacity,1))}.bg-\[\#3f9c5a\]{--tw-bg-opacity:1;background-color:rgb(63 156 90/var(--tw-bg-opacity,1))}.bg-\[\#e4e4e3\]{--tw-bg-opacity:1;background-color:rgb(228 228 227/var(--tw-bg-opacity,1))}.bg-\[rgba\(47\2c 123\2c 246\2c \.06\)\]{background-color:rgba(47,123,246,.06)}.bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0/var(--tw-bg-opacity,1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.p-1{padding:.25rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.\!px-2{padding-left:.5rem!important;padding-right:.5rem!important}.\!px-3{padding-left:.75rem!important;padding-right:.75rem!important}.\!py-1\.5{padding-top:.375rem!important;padding-bottom:.375rem!important}.\!py-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.px-0{padding-left:0;padding-right:0}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-8{padding-top:2rem;padding-bottom:2rem}.\!pb-0{padding-bottom:0!important}.\!pl-3{padding-left:.75rem!important}.pb-4{padding-bottom:1rem}.pr-1{padding-right:.25rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.font-disp{font-family:Inter,Noto Sans KR,sans-serif}.font-sans{font-family:Inter,Noto Sans KR,system-ui,sans-serif}.\!text-xs{font-size:.75rem!important;line-height:1rem!important}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[12px\]{font-size:12px}.text-\[13px\]{font-size:13px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.tabular-nums{--tw-numeric-spacing:tabular-nums;font-variant-numeric:var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction)}.leading-6{line-height:1.5rem}.leading-none{line-height:1}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-\[0\.3em\]{letter-spacing:.3em}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.\!text-ink{--tw-text-opacity:1!important;color:rgb(29 29 31/var(--tw-text-opacity,1))!important}.text-\[\#4a4a50\]{--tw-text-opacity:1;color:rgb(74 74 80/var(--tw-text-opacity,1))}.text-\[\#5e5e64\]{--tw-text-opacity:1;color:rgb(94 94 100/var(--tw-text-opacity,1))}.text-\[\#9a3027\]{--tw-text-opacity:1;color:rgb(154 48 39/var(--tw-text-opacity,1))}.text-\[\#d0544a\]{--tw-text-opacity:1;color:rgb(208 84 74/var(--tw-text-opacity,1))}.text-ink{--tw-text-opacity:1;color:rgb(29 29 31/var(--tw-text-opacity,1))}.text-mute{--tw-text-opacity:1;color:rgb(119 119 125/var(--tw-text-opacity,1))}.text-white\/90{color:hsla(0,0%,100%,.9)}.underline{text-decoration-line:underline}.underline-offset-2{text-underline-offset:2px}.underline-offset-4{text-underline-offset:4px}.accent-\[\#2f7bf6\]{accent-color:#2f7bf6}.\!shadow-none{--tw-shadow:0 0 #0000!important;--tw-shadow-colored:0 0 #0000!important;box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)!important}.shadow{--tw-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px -1px rgba(0,0,0,.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color),0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.outline{outline-style:solid}.blur{--tw-blur:blur(8px)}.blur,.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-filter{-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.\[mm\:ss\]{mm:ss}.hover\:bg-\[\#f6f6f5\]:hover{--tw-bg-opacity:1;background-color:rgb(246 246 245/var(--tw-bg-opacity,1))}.hover\:text-\[\#d0544a\]:hover{--tw-text-opacity:1;color:rgb(208 84 74/var(--tw-text-opacity,1))}@media (min-width:640px){.sm\:inline{display:inline}.sm\:inline-flex{display:inline-flex}.sm\:max-h-\[18rem\]{max-height:18rem}.sm\:w-12,.sm\:w-\[3rem\]{width:3rem}.sm\:w-\[7\.5rem\]{width:7.5rem}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:justify-between{justify-content:space-between}.sm\:gap-3{gap:.75rem}.sm\:p-4{padding:1rem}.sm\:p-5{padding:1.25rem}.sm\:p-6{padding:1.5rem}.sm\:p-8{padding:2rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:py-5{padding-top:1.25rem;padding-bottom:1.25rem}.sm\:py-8{padding-top:2rem;padding-bottom:2rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-xs{font-size:.75rem;line-height:1rem}}@media (min-width:768px){.md\:flex{display:flex}.md\:hidden{display:none}.md\:grid-cols-\[1fr_auto_1fr\]{grid-template-columns:1fr auto 1fr}.md\:flex-row{flex-direction:row}}@media (min-width:1024px){.lg\:sticky{position:sticky}.lg\:top-4{top:1rem}.lg\:col-span-2{grid-column:span 2/span 2}.lg\:max-h-\[calc\(100vh-24rem\)\]{max-height:calc(100vh - 24rem)}.lg\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.lg\:grid-cols-6{grid-template-columns:repeat(6,minmax(0,1fr))}.lg\:grid-cols-\[minmax\(0\2c 1fr\)_minmax\(0\2c 1\.3fr\)_minmax\(0\2c 1\.2fr\)\]{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.2fr)}.lg\:grid-cols-\[minmax\(0\2c 8fr\)_minmax\(0\2c 4fr\)\]{grid-template-columns:minmax(0,8fr) minmax(0,4fr)}.lg\:gap-8{gap:2rem}}</style>
 </head>
 <body class="font-sans min-h-screen overflow-x-hidden">
 <template id="appTpl">
@@ -373,6 +372,11 @@
           </table>
         </div>
         <p class="text-[11px] text-mute">열기: 시청 모드로 열기 · HTML: 학생용 HTML 내려받기 · 수정: 편집 모드로 열어 고친 뒤 다시 "히스토리 저장"</p>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="backupBtn" type="button" class="pill px-3 py-1.5 text-[11px]" title="히스토리·영상별 퀴즈·노트·자막·설정을 한 파일로 (API 키 제외)">💾 전체 백업 ↓</button>
+          <label class="pill px-3 py-1.5 text-[11px]" title="전체 백업 파일에서 되살리기">백업 복원 ↑<input id="restoreFile" type="file" accept=".json,application/json" class="sr-only"></label>
+          <span class="text-[11px] text-mute">다른 컴퓨터로 옮기거나 브라우저 데이터를 지우기 전에 보관하세요.</span>
+        </div>
       </div>
     </div>
   </section>
@@ -413,7 +417,7 @@
           <span id="tDur" class="w-10 sm:w-12">00:00</span>
         </div>
         <p class="legend flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] text-mute -mt-1">
-          <span><i>◆</i> 퀴즈 <span id="lgQuiz" class="font-disp"></span></span><span><i>▲</i> 북마크 <span id="lgBook" class="font-disp"></span></span><span><i>●</i> 노트 <span id="lgNote" class="font-disp"></span></span><span><i>✕</i> 이해 안 됨 <span id="lgConf" class="font-disp"></span></span><span>막대를 눌러 이동</span>
+          <span><i>◆</i> 퀴즈 <span id="lgQuiz" class="font-disp"></span></span><span><i>▲</i> 북마크 <span id="lgBook" class="font-disp"></span></span><span><i>●</i> 노트 <span id="lgNote" class="font-disp"></span></span><span><i>✕</i> 이해 안 됨 <span id="lgConf" class="font-disp"></span></span><span><i>?</i> 질문 <span id="lgAsk" class="font-disp"></span></span><span><i>■</i> 설명 카드</span><span>막대를 눌러 이동</span>
         </p>
 
         <div class="flex flex-wrap items-center gap-2">
@@ -431,12 +435,23 @@
         </div>
         <div class="flex flex-wrap items-center gap-2" role="group" aria-label="학습 도구">
           <button id="confBtn" type="button" class="pill h-10 px-3 text-xs whitespace-nowrap" title="헷갈리는 지점을 표시해 교수에게 알립니다 (단축키 ?)">✕ 이해 안 됨</button>
+          <button id="askBtn" type="button" class="pill h-10 px-3 text-xs whitespace-nowrap" title="지금 시점에 대한 질문을 남깁니다 (단축키 Q)">💬 질문</button>
           <button id="ccBtn" type="button" class="pill h-10 px-3 text-xs font-disp font-semibold" aria-pressed="false" title="자막을 영상 위에 표시">CC 자막</button>
           <button id="ccSize" type="button" class="pill h-10 px-3 text-xs whitespace-nowrap" title="영상 위 자막 글자 크기">글자 <b id="ccSizeLabel" class="font-disp">보통</b></button>
           <button id="fsBtn" type="button" class="pill h-10 px-3 text-xs whitespace-nowrap" title="전체 화면에서도 퀴즈·자막이 보입니다">⛶ 전체 화면</button>
           <button id="endBtn" type="button" class="pill h-10 px-3 text-xs whitespace-nowrap" title="점수·다시 볼 구간·노트 정리">🏁 마무리</button>
         </div>
         <p id="confInfo" class="hidden glass-info rounded-2xl px-3 py-2 text-[11px] leading-relaxed" role="status"></p>
+        <div id="askBox" class="hidden sunk rounded-[1.4rem] p-3 sm:p-4 space-y-2">
+          <div class="flex items-center gap-2 min-w-0"><span id="askTime" class="tchip">00:00</span>
+            <span class="text-[11px] text-mute truncate">이 시점에 대한 질문 · 제출할 때 교수님께 함께 전달됩니다</span></div>
+          <div class="flex gap-2">
+            <input id="askInput" type="text" maxlength="300" autocomplete="off" class="field flex-1 text-sm" placeholder="궁금한 점을 적으세요 (Enter 저장)" aria-label="질문 입력">
+            <button id="askSave" type="button" class="pill pill-dark px-4 text-xs whitespace-nowrap">저장</button>
+            <button id="askClose" type="button" class="icon-btn shrink-0 self-center" aria-label="질문 창 닫기">✕</button>
+          </div>
+          <ul id="askList" class="space-y-1.5"></ul>
+        </div>
 
         <div id="editTools" class="hidden sunk rounded-[1.4rem] p-3 sm:p-4 space-y-3">
           <div class="flex flex-wrap gap-2">
@@ -478,8 +493,11 @@
           <div class="stat"><b id="stuWatch">0%</b><span>시청 비율</span></div>
         </div>
         <p id="stuDue" class="hidden rounded-2xl px-3 py-2 text-[11px] leading-relaxed"></p>
-        <button id="stuSubmit" type="button" class="pill pill-dark w-full py-3 text-sm">📤 제출 파일 저장 (JSON) ↓</button>
-        <p class="text-[11px] text-mute leading-relaxed">퀴즈 결과·시청 비율·노트가 담긴 파일입니다. 내려받은 파일을 LMS 과제 등에 제출하세요.</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="stuSubmit" type="button" class="pill pill-dark py-3 text-xs sm:text-sm">📤 제출 파일 ↓</button>
+          <button id="stuCode" type="button" class="pill py-3 text-xs sm:text-sm" title="결과를 문자 코드로 복사해 LMS 댓글·구글 폼에 붙여넣기">📋 결과 코드 복사</button>
+        </div>
+        <p class="text-[11px] text-mute leading-relaxed">퀴즈 결과·시청 비율·노트·질문을 담습니다. 파일을 LMS 과제로 내거나, 결과 코드를 복사해 LMS 댓글·구글 폼에 붙여넣으세요.</p>
       </div>
 
       <div class="glass rounded-[2rem] p-4 sm:p-5 flex flex-col gap-3">
@@ -594,6 +612,11 @@
           <span class="text-[11px] text-mute">학생용 HTML에서 저장한 <b>결과_학번_성명.json</b></span>
           <input id="gbFiles" type="file" accept=".json,application/json" multiple class="sr-only">
         </label>
+        <details class="glass-chip rounded-2xl px-4 py-3">
+          <summary class="text-xs font-bold cursor-pointer">📋 결과 코드 붙여넣기 <span class="font-normal text-mute">— 학생이 LMS·구글 폼에 붙인 코드</span></summary>
+          <textarea id="gbCodes" rows="4" class="field mt-3 resize-y rounded-2xl text-[11px] font-disp" placeholder="CLR1.z.… 코드를 여러 개 한꺼번에 붙여넣어도 됩니다 (구글 폼 응답 시트·LMS 댓글을 통째로 복사해도 코드만 골라 읽음)"></textarea>
+          <button id="gbCodeBtn" type="button" class="pill pill-dark mt-2 px-4 py-2 text-xs">코드 집계 →</button>
+        </details>
         <p id="gbNote" class="text-[11px] text-mute" role="status"></p>
       </div>
     </section>
@@ -749,6 +772,14 @@
         </div>
       </div>
     </div>
+    <div id="gbAskWrap" class="hidden space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <p class="text-xs font-bold">💬 학생 질문 <span id="gbAskCount" class="font-normal text-mute"></span></p>
+        <button id="gbAskAi" type="button" class="pill px-4 py-2 text-xs">🤖 AI로 질문 묶어 요약</button>
+      </div>
+      <p id="gbAskMsg" class="hidden rounded-2xl px-4 py-2.5 text-xs leading-relaxed whitespace-pre-wrap" role="status"></p>
+      <ul id="gbAsk" class="glass-chip rounded-2xl p-3 space-y-1.5 max-h-[22rem] overflow-y-auto"></ul>
+    </div>
     <div id="gbEssayWrap" class="hidden space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <p class="text-xs font-bold">✍ 서술형 성찰 답변</p>
@@ -824,6 +855,7 @@
     </div>
     <div class="flex flex-wrap gap-2 justify-end">
       <button type="button" class="pill px-5 py-2.5 text-sm" data-end-act="restart">처음부터 다시 ↺</button>
+      <button id="emCode" type="button" class="hidden pill px-5 py-2.5 text-sm" data-end-act="code">📋 결과 코드 복사</button>
       <button id="emSubmit" type="button" class="hidden pill pill-dark px-5 py-2.5 text-sm" data-end-act="submit">📤 제출 파일 저장 ↓</button>
       <button type="button" class="pill pill-dark px-5 py-2.5 text-sm" data-close-end>닫기</button>
     </div>
@@ -847,6 +879,7 @@
 
 <script id="appMain">
 // 화면·저장 파일에 표시되는 앱 버전. 수정할 때마다 올림: 새 기능 → 둘째 자리, 고침·디자인 → 셋째 자리
+// v1.8.0  결과 코드 제출·코드 집계, 처음 고른 답 분포, 시점별 학생 질문, 설명 카드(■), 전체 백업·복원, 끊긴 자막 조각 한 줄로 합치기
 // v1.7.0  Share = 온라인 공유 링크(앱 웹 주소 + 압축 데이터, 열면 학생 시청 모드), 히스토리·영상 기록을 IndexedDB에 저장해 용량 초과 저장 오류 해결
 // v1.6.1  퀴즈 창을 영상 위 오버레이로 표시(넓은 화면·플레이어 전체 화면), 휴대폰은 바텀 시트 유지
 // v1.6.0  자막 번역(AI, 8개 언어): 원문/번역/함께 보기(자막 목록·CC), 번역 SRT 내려받기, 학생용 HTML에 포함
@@ -864,7 +897,7 @@
 // v1.2.0  STEP 3 편집 모드/시청 모드, 퀴즈 4유형·힌트·통과 조건, 건너뛰기 막기, 자막 표시·검색, AI 요약·챕터, 속도·구간 반복·단축키
 // v1.1.0  STEP 2 AI 연결(Claude·OpenAI·Gemini, 연결 확인·모델 제안), 자막 기반 AI 퀴즈 배치, 키·강의 정보 저장, 접기·펼치기
 // v1.0.0  STEP 1 기본 골격: 유튜브·영상 파일 재생, 팝업 퀴즈, 타임스탬프 노트, 구간 북마크 바, 샘플 데이터
-const APP_VERSION = 'v1.7.0';
+const APP_VERSION = 'v1.8.0';
 const APP_NAME = '10 인터랙티브 학습용 동영상 플레이어';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -911,7 +944,7 @@ let provider = 'claude';
 const COURSE_FIELDS = { univ: '대학', dept: '학과', prof: '교수', course: '과목' };
 const course = { univ: '', dept: '', prof: '', course: '' };
 const collapsed = { ai: false, course: false, hist: false };
-const TYPES = { mcq: '객관식', ox: 'OX', short: '단답형', multi: '복수 선택', essay: '서술형' };
+const TYPES = { mcq: '객관식', ox: 'OX', short: '단답형', multi: '복수 선택', essay: '서술형', info: '설명 카드' };
 const CIRCLED = '①②③④⑤⑥⑦⑧';
 const RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 let lastVid = '';
@@ -944,7 +977,8 @@ const idb = (() => {
       t.onerror = t.onabort = () => rej(t.error || req.error);
     });
   };
-  return { get: k => run('readonly', s => s.get(k)), set: (k, v) => run('readwrite', s => s.put(v, k)), del: k => run('readwrite', s => s.delete(k)) };
+  return { get: k => run('readonly', s => s.get(k)), set: (k, v) => run('readwrite', s => s.put(v, k)), del: k => run('readwrite', s => s.delete(k)),
+    keys: () => run('readonly', s => s.getAllKeys()) };
 })();
 const bigStore = {
   async get(k, d = null) {
@@ -1036,7 +1070,7 @@ function normQuiz(q) {
   }
   return o;
 }
-const qValid = q => q.q.trim() && (q.type === 'ox' || q.type === 'essay' || (q.type === 'short' ? q.answer.trim()
+const qValid = q => q.q.trim() && (q.type === 'ox' || q.type === 'essay' || q.type === 'info' || (q.type === 'short' ? q.answer.trim()
   : q.options.every(o => o.trim()) && (q.type === 'mcq' || q.answer.length > 0)));
 function normRecord(r) {
   const o = {
@@ -1064,7 +1098,7 @@ const videoUrl = (r, t) => r.src.kind === 'yt' ? `https://youtu.be/${r.src.id}${
 // ---------- 상태 ----------
 let rec = null;               // 현재 영상 기록 (퀴즈·북마크·노트·자막)
 let prog = freshProg();       // 시청 기록 (퀴즈 결과·시청 구간 · 학생 노트)
-function freshProg() { return { student: null, results: {}, visits: [], notes: [], confused: [] }; }
+function freshProg() { return { student: null, results: {}, visits: [], notes: [], confused: [], questions: [] }; }
 const stuKey = () => 'cliplab-stu:' + rec.vid;
 const notesArr = () => STUDENT ? prog.notes : rec.notes;
 const result = q => prog.results[q.id] || (prog.results[q.id] = { attempts: 0, firstCorrect: null, correct: false, passed: false });
@@ -1387,13 +1421,15 @@ function renderBar() {
   $('lgBook').textContent = rec.bookmarks.length;
   $('lgNote').textContent = notes.length;
   $('lgConf').textContent = prog.confused.length;
+  $('lgAsk').textContent = prog.questions.length;
   if (!d) { $('marks').innerHTML = ''; return; }
   const left = t => `left:${Math.min(100, t / d * 100).toFixed(3)}%`;
   $('marks').innerHTML = [
     ...rec.bookmarks.map(b => `<button type="button" class="mk mk-book" style="${left(b.t)}" data-t="${b.t}" title="▲ ${fmt(b.t)} ${esc(b.label)}" aria-label="북마크 ${fmt(b.t)} ${esc(b.label)}"></button>`),
     ...notes.map(n => `<button type="button" class="mk mk-note" style="${left(n.t)}" data-t="${n.t}" title="● ${fmt(n.t)} ${esc(n.text.slice(0, 60))}" aria-label="노트 ${fmt(n.t)}"></button>`),
+    ...prog.questions.map(x => `<button type="button" class="mk mk-ask" style="${left(x.t)}" data-t="${x.t}" title="? ${fmt(x.t)} ${esc(x.text.slice(0, 60))}" aria-label="질문 ${fmt(x.t)}"></button>`),
     ...prog.confused.map(t => `<button type="button" class="mk mk-conf" style="${left(t)}" data-t="${t}" title="✕ ${fmt(t)} 이해 안 됨" aria-label="이해 안 됨 ${fmt(t)}"></button>`),
-    ...rec.quizzes.map((q, i) => `<button type="button" class="mk mk-quiz ${isDone(q) ? 'done' : ''}" style="${left(q.t)}" data-t="${q.t}" data-qid="${q.id}" title="◆ 퀴즈 ${i + 1} · ${fmt(q.t)}${mode === 'edit' ? ' · ' + esc(q.q.slice(0, 50)) : ''}" aria-label="퀴즈 ${i + 1} ${fmt(q.t)}"></button>`)
+    ...rec.quizzes.map((q, i) => `<button type="button" class="mk mk-quiz ${isDone(q) ? 'done' : ''} ${q.type === 'info' ? 'info' : ''}" style="${left(q.t)}" data-t="${q.t}" data-qid="${q.id}" title="◆ 퀴즈 ${i + 1} · ${fmt(q.t)}${mode === 'edit' ? ' · ' + esc(q.q.slice(0, 50)) : ''}" aria-label="퀴즈 ${i + 1} ${fmt(q.t)}"></button>`)
   ].join('');
   renderLoop();
 }
@@ -1406,6 +1442,7 @@ function answerText(q) {
   if (q.type === 'multi') return q.answer.map(a => `${CIRCLED[a]} ${q.options[a]}`).join(', ');
   if (q.type === 'ox') return q.answer ? 'O' : 'X';
   if (q.type === 'essay') return q.answer ? `(예시 답안) ${q.answer}` : '(서술형 · 정답 없음)';
+  if (q.type === 'info') return '(설명 카드)';
   return q.answer + (q.accept.length ? ` (인정: ${q.accept.join(', ')})` : '');
 }
 const norm = s => String(s ?? '').toLowerCase().replace(/[\s.,!?·'"()\-_/~]/g, '');
@@ -1427,6 +1464,7 @@ function widgetHTML(q) {
   if (q.type === 'ox') return `<div class="grid grid-cols-2 gap-3">${['O', 'X'].map(v =>
     `<label class="ox" data-v="${v}"><input type="radio" name="qm" value="${v}" class="sr-only"><span>${v}</span></label>`).join('')}</div>`;
   if (q.type === 'short') return `<input class="field short-in" type="text" autocomplete="off" placeholder="답을 입력하세요 (Enter 확인)" aria-label="답 입력">`;
+  if (q.type === 'info') return `<div class="glass-info rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap break-words">${esc(q.explanation || '')}</div>${/^https?:\/\//i.test(q.answer) ? `<a href="${esc(q.answer)}" target="_blank" rel="noopener" class="pill mt-3 px-4 py-2 text-xs break-all">🔗 참고 자료 열기 ↗</a>` : ''}`;
   if (q.type === 'essay') return `<p class="text-[11px] text-mute mb-2">정답이 없는 성찰 질문입니다. 자기 생각을 자유롭게 적으세요.</p>
     <textarea class="field resize-y rounded-2xl leading-relaxed text-sm" rows="5" maxlength="2000" placeholder="생각을 2~3문장 이상 적어 보세요" aria-label="서술형 답변"></textarea>`;
   const multi = q.type === 'multi';
@@ -1470,7 +1508,7 @@ function resetQuizBody() {
   if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); submitQuiz(); } });
   setActions([
     ...(q.hint ? [['💡 힌트', 'hint', '']] : []),
-    ['확인 ✓', 'submit', 'pill-dark']
+    [q.type === 'info' ? '확인하고 계속 ▶' : '확인 ✓', 'submit', 'pill-dark']
   ]);
 }
 function setActions(list) {
@@ -1510,7 +1548,15 @@ function revealAnswer(q) {
   });
 }
 function submitQuiz() {
-  const q = modalQ, a = readAnswer(q);
+  const q = modalQ;
+  // 설명 카드: 확인만 하면 통과
+  if (q.type === 'info') {
+    if (!modalOpts.preview) { const r = result(q); r.attempts++; r.correct = true; persist(); renderBar(); renderStu(); }
+    closeQuiz();
+    if (!modalOpts.preview) player.play();
+    return;
+  }
+  const a = readAnswer(q);
   if (a == null) return fbBox('info', q.type === 'short' || q.type === 'essay' ? '답을 입력하세요.' : '보기를 고르세요.');
   // 서술형: 채점 없이 답변만 저장
   if (q.type === 'essay') {
@@ -1529,7 +1575,7 @@ function submitQuiz() {
   if (!modalOpts.preview) {
     const r = result(q);
     r.attempts++;
-    if (r.firstCorrect == null) r.firstCorrect = ok;
+    if (r.firstCorrect == null) { r.firstCorrect = ok; r.first = a; }
     if (ok) r.correct = true;
     persist(); renderBar(); renderStu();
   }
@@ -1774,7 +1820,22 @@ function parseSubs(text, d) {
   }
   cues.sort((a, b) => a.s - b.s);
   cues.forEach((c, i) => { if (!c.e || c.e <= c.s) c.e = cues[i + 1]?.s ?? c.s + 4; });
-  return { cues, approx };
+  return { cues: approx ? cues : mergeFragments(cues), approx };
+}
+// 문장이 끝나지 않은 자막 뒤에 짧은 꼬리 조각(예: "…底线任" + "务。")이 이어지면 한 줄로 합침
+const SENT_END = /[.!?。！？…"'」』）)\]】》〉]$/;
+const isCJK = ch => /[\u3000-\u9fff\uac00-\ud7af\uff00-\uffef]/.test(ch || '');
+function mergeFragments(cues) {
+  const out = [];
+  for (const c of cues) {
+    const p = out.at(-1), t = c.text.trim();
+    const short = t.replace(/[\s.,!?。，！？、…]/g, '').length <= 4 || c.e - c.s <= 1.2;
+    if (p && !SENT_END.test(p.text.trim()) && short && c.s - p.e <= 0.6) {
+      p.text = p.text.trim() + (isCJK(p.text.trim().at(-1)) || isCJK(t[0]) ? '' : ' ') + t;
+      p.e = Math.max(p.e, c.e);
+    } else out.push({ ...c, text: t });
+  }
+  return out;
 }
 function applySubs(text, from) {
   const { cues, approx } = parseSubs(text, dur());
@@ -1826,6 +1887,8 @@ function openRecord(r, opts = {}) {
   prog = STUDENT ? Object.assign(freshProg(), store.get(stuKey(), {})) : freshProg();
   lastT = 0; lastSec = -1; loopA = loopB = null; stamp = null; curFile = null; endShown = false;
   if (!Array.isArray(prog.confused)) prog.confused = [];
+  if (!Array.isArray(prog.questions)) prog.questions = [];
+  $('askBox').classList.add('hidden');
   $('cueSearch').value = '';
   if (opts.mode && !STUDENT) mode = opts.mode;
   if (rec.src.kind === 'yt') playYouTube(rec.src.id);
@@ -1870,11 +1933,12 @@ function setMode(m) {
   $('editorOff').classList.toggle('hidden', mode === 'edit');
   $('bEditor').classList.toggle('hidden', mode !== 'edit');
   $('titleInput').readOnly = mode !== 'edit';
-  $('confBtn').hidden = $('endBtn').hidden = mode === 'edit';
+  $('confBtn').hidden = $('askBtn').hidden = $('endBtn').hidden = mode === 'edit';
+  if (mode === 'edit') $('askBox').classList.add('hidden');
   $('modeHint').textContent = STUDENT ? '퀴즈가 나오면 풀고 넘어가세요. 헷갈리는 곳은 "✕ 이해 안 됨"을 누르세요. 단축키: Space 재생/정지 · ←/→ 5초 · N 노트 쓰기 · ? 이해 안 됨'
     : mode === 'edit' ? '편집 모드: 원하는 시점에 멈추고 "여기에 퀴즈 추가"를 누르세요. 퀴즈는 팝업되지 않습니다. 제목을 눌러 고칠 수 있어요. 단축키: Space · ←/→ · N'
     : '시청 모드: 학생 화면과 같이 퀴즈 시점에 영상이 멈추고 퀴즈가 뜹니다. (풀이·표시 기록은 이 화면에서만 유지) 단축키: Space 재생/정지 · ←/→ 5초 · N 노트 쓰기 · ? 이해 안 됨';
-  if (mode === 'watch' && !STUDENT) { prog.results = {}; prog.confused = []; endShown = false; } // 교수 미리 보기는 매번 새로
+  if (mode === 'watch' && !STUDENT) { prog.results = {}; prog.confused = []; prog.questions = []; endShown = false; } // 교수 미리 보기는 매번 새로
   if (rec) { renderBar(); }
   saveSettings();
 }
@@ -1897,6 +1961,7 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowRight') { e.preventDefault(); seekTo(player.time() + 5); }
   else if (e.key === 'n' || e.key === 'N' || e.key === 'ㅜ') { e.preventDefault(); $('noteInput').focus(); $('noteInput').scrollIntoView({ block: 'nearest' }); }
   else if (e.key === '?' && mode === 'watch') { e.preventDefault(); markConfused(); }
+  else if ((e.key === 'q' || e.key === 'Q' || e.key === 'ㅂ') && mode === 'watch') { e.preventDefault(); openAsk(); }
 });
 
 // ---------- 편집 모드: 여기에 퀴즈·북마크 추가 ----------
@@ -1931,6 +1996,9 @@ function answerEditor(q) {
   if (q.type === 'ox') return `<div><span class="block text-xs font-bold mb-1.5">정답</span><div class="grid grid-cols-2 gap-2 max-w-[14rem]">${['O', 'X'].map(v =>
     `<label class="chip cursor-pointer"><input type="radio" name="ox-${q.id}" value="${v}" data-f="ox" class="sr-only" ${(v === 'O') === q.answer ? 'checked' : ''}>
       <span class="block text-center rounded-full glass-chip py-1.5 text-sm font-disp font-semibold">${v}</span></label>`).join('')}</div></div>`;
+  if (q.type === 'info') return `<label class="block"><span class="block text-xs font-bold mb-1.5">본문 <span class="font-normal text-mute">(영상을 멈추고 보여 줄 보충 설명)</span></span>
+    <textarea data-f="explanation" rows="4" class="field resize-y rounded-2xl text-xs leading-relaxed" placeholder="예: 시그모이드 함수의 식과 그래프는 교재 3장 42쪽을 참고하세요.">${esc(q.explanation)}</textarea></label>
+    <label class="block"><span class="block text-xs font-bold mb-1.5">참고 링크 <span class="font-normal text-mute">(선택 · https://…)</span></span><input data-f="answer" type="url" class="field !py-2 text-xs" value="${esc(q.answer)}" placeholder="https://"></label>`;
   if (q.type === 'essay') return `<label class="block"><span class="block text-xs font-bold mb-1.5">예시 답안 <span class="font-normal text-mute">(선택 · 답변을 저장한 뒤 학생에게 보여 줌, 채점 안 함)</span></span>
     <textarea data-f="answer" rows="2" class="field resize-y rounded-2xl text-xs leading-relaxed" placeholder="예: 가중치는 … 라고 생각한다.">${esc(q.answer)}</textarea></label>`;
   if (q.type === 'short') return `<div class="grid sm:grid-cols-2 gap-2">
@@ -1948,25 +2016,25 @@ function editorCard(q, i) {
   const warn = !qValid(q);
   return `<div class="ed-card glass rounded-[1.6rem] p-4 sm:p-5 space-y-3" data-qid="${q.id}">
     <div class="flex flex-wrap items-center gap-2">
-      <span class="font-disp text-sm font-semibold">◆ Q${i + 1}</span>
+      <span class="font-disp text-sm font-semibold">${q.type === 'info' ? '■' : '◆'} Q${i + 1}</span>
       <input data-f="t" class="field !w-[5.6rem] !py-1.5 !px-2 font-disp text-center" value="${fmt(q.t)}" aria-label="퀴즈 시간 (분:초)">
       <button type="button" class="pill px-3 py-1 text-[11px]" data-act="now" title="재생 위치를 이 퀴즈 시간으로">⏱ 현재 시각</button>
       <button type="button" class="pill px-3 py-1 text-[11px]" data-act="go" title="이 시각으로 이동">이동</button>
       <select data-f="type" class="field !w-auto !py-1.5 !pl-3 !text-xs" aria-label="퀴즈 유형">${Object.entries(TYPES).map(([k, v]) => `<option value="${k}" ${k === q.type ? 'selected' : ''}>${v}</option>`).join('')}</select>
     </div>
-    <label class="block"><span class="block text-xs font-bold mb-1.5">문제</span><textarea data-f="q" rows="2" class="field resize-y rounded-2xl leading-relaxed" placeholder="질문을 입력하세요">${esc(q.q)}</textarea></label>
+    <label class="block"><span class="block text-xs font-bold mb-1.5">${q.type === 'info' ? '카드 제목' : '문제'}</span><textarea data-f="q" rows="2" class="field resize-y rounded-2xl leading-relaxed" placeholder="${q.type === 'info' ? '예: 잠깐! 활성화 함수 더 알아보기' : '질문을 입력하세요'}">${esc(q.q)}</textarea></label>
     ${answerEditor(q)}
-    <div class="grid sm:grid-cols-2 gap-2">
+    <div class="grid sm:grid-cols-2 gap-2 ${q.type === 'info' ? 'hidden' : ''}">
       <label class="block min-w-0"><span class="block text-xs font-bold mb-1.5">해설</span><textarea data-f="explanation" rows="2" class="field resize-y rounded-2xl text-xs leading-relaxed" placeholder="정답 근거·오답 이유">${esc(q.explanation)}</textarea></label>
       <label class="block min-w-0"><span class="block text-xs font-bold mb-1.5">힌트 <span class="font-normal text-mute">(선택)</span></span><textarea data-f="hint" rows="2" class="field resize-y rounded-2xl text-xs leading-relaxed" placeholder="정답을 말하지 않고 방향만">${esc(q.hint)}</textarea></label>
     </div>
     <div class="flex flex-wrap items-center gap-2">
-      <select data-f="mustPass" class="field !w-auto !py-1.5 !pl-3 !text-xs" aria-label="진행 방식">
+      <select data-f="mustPass" class="field !w-auto !py-1.5 !pl-3 !text-xs ${q.type === 'info' ? 'hidden' : ''}" aria-label="진행 방식">
         <option value="1" ${q.mustPass ? 'selected' : ''}>정답을 맞혀야 넘어가기</option>
         <option value="0" ${q.mustPass ? '' : 'selected'}>틀려도 넘어가기</option></select>
       <span class="ml-auto flex flex-wrap gap-1.5">
         <button type="button" class="pill px-3 py-1.5 text-[11px]" data-act="preview">미리보기</button>
-        <button type="button" class="pill px-3 py-1.5 text-[11px]" data-act="regen" title="자막을 바탕으로 이 문항만 AI로 다시 만들기">✨ AI 다시 만들기</button>
+        ${q.type === 'info' ? '' : '<button type="button" class="pill px-3 py-1.5 text-[11px]" data-act="regen" title="자막을 바탕으로 이 문항만 AI로 다시 만들기">✨ AI 다시 만들기</button>'}
         <button type="button" class="pill pill-danger px-3 py-1.5 text-[11px]" data-act="del">삭제</button>
       </span>
     </div>
@@ -2004,7 +2072,7 @@ $('qEditor').addEventListener('change', e => {
     rec.quizzes.sort(byT); persist(); renderBar(); renderEditor(); focusEditor(q.id);
   } else if (f === 'type') {
     const from = q.type;
-    Object.assign(q, normQuiz({ ...q, type: v, answer: v === 'ox' ? true : (v === 'short' || v === 'essay') ? '' : (from === 'ox' || from === 'short' || from === 'essay') ? 0 : q.answer,
+    Object.assign(q, normQuiz({ ...q, type: v, answer: v === 'ox' ? true : (v === 'short' || v === 'essay' || v === 'info') ? '' : (from === 'ox' || from === 'short' || from === 'essay' || from === 'info') ? 0 : q.answer,
       options: (v === 'mcq' || v === 'multi') && (from === 'mcq' || from === 'multi') ? q.options : [], mustPass: q.mustPass }));
     persist(); renderBar(); card.outerHTML = editorCard(q, rec.quizzes.indexOf(q));
   } else if (f === 'ans') {
@@ -2433,11 +2501,10 @@ function buildStudentHTML(r) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(record.title || '학습 영상')} · 학생용 | ${APP_NAME}</title>
-<script src="https://cdn.tailwindcss.com/3.4.16"><\/script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-${$('twConfig').outerHTML}
 ${$('appStyle').outerHTML}
+${$('twCss').outerHTML}
 <script type="application/json" id="embed">${json}<\/script>
 </head>
 <body class="font-sans min-h-screen overflow-x-hidden">
@@ -2585,7 +2652,7 @@ function renderDeploy() {
 // ---------- 학생 모드: 학생 정보 · 진행 · 제출 ----------
 function stuStats() {
   const qs = rec.quizzes.filter(qValid);
-  const graded = qs.filter(q => q.type !== 'essay'); // 서술형은 점수에서 뺌
+  const graded = qs.filter(q => q.type !== 'essay' && q.type !== 'info'); // 서술형·설명 카드는 점수에서 뺌
   const done = qs.filter(isDone).length, first = graded.filter(q => prog.results[q.id]?.firstCorrect === true).length;
   const d = Math.floor(dur());
   const watched = d ? prog.visits.slice(0, d).filter(v => v > 0).length : 0;
@@ -2636,8 +2703,9 @@ $('stuForm').addEventListener('submit', e => {
   $('stuModal').classList.add('hidden');
 });
 $('stuEdit').onclick = openStuModal;
-$('stuSubmit').onclick = () => {
-  if (!prog.student) return openStuModal();
+// 제출 내용(파일·결과 코드 공용). 조건 미달이면 확인을 받고, 취소하면 null
+function buildResult(how) {
+  if (!prog.student) { openStuModal(); return null; }
   const s = stuStats();
   const due = dueDate(), late = !!due && Date.now() > due, minWatch = rec.deploy.minWatch, watchOK = s.ratio * 100 >= minWatch;
   const warn = [
@@ -2645,20 +2713,119 @@ $('stuSubmit').onclick = () => {
     !watchOK ? `시청 비율 ${Math.round(s.ratio * 100)}%로 최소 기준 ${minWatch}%보다 낮아 "시청 미달"로 표시됩니다.` : '',
     late ? '마감이 지나 "지각"으로 표시됩니다.' : ''
   ].filter(Boolean);
-  if (warn.length && !confirm(`${warn.join('\n')}\n\n그래도 지금 제출 파일을 저장할까요?`)) return;
+  if (warn.length && !confirm(`${warn.join('\n')}\n\n그래도 지금 ${how}할까요?`)) return null;
   const body = {
     app: 'cliplab-result', appVersion: APP_VERSION, vid: rec.vid, title: rec.title, course: { ...course }, student: prog.student,
     submittedAt: new Date().toISOString(), duration: s.d, watchedSec: s.watched, watchRatio: Math.round(s.ratio * 1000) / 1000,
     score: s.score, correctFirst: s.first, total: s.graded.length,
     due: rec.deploy.due, late, minWatch, watchOK,
-    quizzes: s.qs.map(q => { const r = prog.results[q.id] || {}; return { id: q.id, t: q.t, type: q.type, q: q.q, attempts: r.attempts || 0, firstCorrect: r.firstCorrect === true, correct: !!r.correct, passed: !!r.passed, ...(q.type === 'essay' ? { text: r.text || '' } : {}) }; }),
+    quizzes: s.qs.map(q => { const r = prog.results[q.id] || {}; return { id: q.id, t: q.t, type: q.type, q: q.q, attempts: r.attempts || 0, firstCorrect: r.firstCorrect === true, correct: !!r.correct, passed: !!r.passed,
+      ...(q.type === 'essay' ? { text: r.text || '' } : {}),
+      ...(['mcq', 'multi', 'ox', 'short'].includes(q.type) ? { first: r.first ?? null, key: q.type === 'ox' ? (q.answer ? 'O' : 'X') : q.answer, options: q.options } : {}) }; }),
     visits: Array.from({ length: s.d }, (_, i) => prog.visits[i] || 0),
     confused: [...prog.confused],
+    questions: prog.questions.map(x => ({ t: x.t, text: x.text })),
     notes: prog.notes.map(n => ({ t: n.t, text: n.text }))
   };
   body.sig = hash(JSON.stringify(body) + '|cliplab');
+  return body;
+}
+$('stuSubmit').onclick = () => {
+  const body = buildResult('제출 파일을 저장');
+  if (!body) return;
   saveBlob(new Blob([JSON.stringify(body, null, 1)], { type: 'application/json;charset=utf-8' }), `결과_${safeName(prog.student.sid)}_${safeName(prog.student.name)}.json`);
   flash($('noteMsg'), 'ok', '✔ 제출 파일을 저장했습니다. 내려받은 JSON 파일을 제출하세요.');
+};
+
+// 결과 코드: 제출 내용을 압축한 문자 코드 (LMS 댓글·구글 폼에 붙여넣기)
+$('stuCode').onclick = async () => {
+  const body = buildResult('결과 코드를 복사');
+  if (!body) return;
+  const code = 'CLR1.' + await packShare(body);
+  try {
+    await navigator.clipboard.writeText(code);
+    flash($('noteMsg'), 'ok', `✔ 결과 코드를 복사했습니다(${(code.length / 1024).toFixed(1)}KB). LMS 댓글·과제 칸이나 구글 폼에 그대로 붙여넣으세요.`);
+  } catch {
+    window.prompt('아래 결과 코드를 모두 복사(Ctrl+C)해 LMS·구글 폼에 붙여넣으세요.', code);
+  }
+};
+
+// ---------- 시점별 학생 질문 ----------
+let askT = 0;
+function openAsk() {
+  if (mode !== 'watch') return;
+  askT = Math.round(player.time() * 10) / 10;
+  $('askTime').textContent = fmt(askT);
+  $('askBox').classList.remove('hidden');
+  renderAskList();
+  $('askInput').focus();
+}
+function renderAskList() {
+  $('askList').innerHTML = prog.questions.map((x, i) => `<li class="flex items-start gap-2 text-xs leading-relaxed">
+    <button type="button" class="tchip" data-ask-seek="${x.t}" aria-label="${fmt(x.t)}로 이동">${fmt(x.t)}</button>
+    <span class="flex-1 min-w-0 break-words">${esc(x.text)}</span>
+    <button type="button" class="icon-btn danger !w-6 !h-6 text-[10px] shrink-0" data-ask-del="${i}" aria-label="질문 삭제">✕</button></li>`).join('');
+}
+function saveAsk() {
+  const text = $('askInput').value.trim();
+  if (!text) return $('askInput').focus();
+  prog.questions.push({ t: askT, text });
+  prog.questions.sort(byT);
+  $('askInput').value = '';
+  persist(); renderBar(); renderAskList();
+  showConf(`💬 ${fmt(askT)} 질문을 남겼습니다. 모두 ${prog.questions.length}개${STUDENT ? ' · 제출할 때 교수님께 전달됩니다' : ' (시청 모드 미리 보기 기록)'}`);
+}
+$('askBtn').onclick = () => $('askBox').classList.contains('hidden') ? openAsk() : $('askBox').classList.add('hidden');
+$('askSave').onclick = saveAsk;
+$('askClose').onclick = () => $('askBox').classList.add('hidden');
+$('askInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); saveAsk(); }
+  if (e.key === 'Escape') $('askBox').classList.add('hidden');
+});
+$('askList').addEventListener('click', e => {
+  const s = e.target.closest('[data-ask-seek]'), d = e.target.closest('[data-ask-del]');
+  if (s) seekTo(+s.dataset.askSeek);
+  if (d) { prog.questions.splice(+d.dataset.askDel, 1); persist(); renderBar(); renderAskList(); }
+});
+
+// ---------- 전체 백업 · 복원 (API 키 제외) ----------
+const isBigKey = k => typeof k === 'string' && (k === HIST_KEY || k.startsWith('cliplab-video:'));
+$('backupBtn').onclick = async () => {
+  const all = new Set();
+  try { (await idb.keys()).forEach(k => all.add(k)); } catch {}
+  try { for (let i = 0; i < localStorage.length; i++) all.add(localStorage.key(i)); } catch {}
+  const data = {};
+  for (const k of all) if (isBigKey(k)) data[k] = await bigStore.get(k);
+  const settings = { ...store.get(STORE_KEY, {}) };
+  delete settings.keys;
+  const videos = Object.keys(data).filter(k => k !== HIST_KEY).length;
+  download(JSON.stringify({ app: 'cliplab-backup', version: 1, appVersion: APP_VERSION, createdAt: new Date().toISOString(), settings, cc: store.get('cliplab-cc', {}), data }),
+    'CLIPLAB_전체백업', 'json', 'application/json');
+  flash($('srcMsg'), 'ok', `✔ 전체 백업을 저장했습니다. (히스토리 ${(data[HIST_KEY] || []).length}개 · 영상 기록 ${videos}개 · 설정, API 키 제외)`);
+};
+$('restoreFile').onchange = async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  let b;
+  try { b = JSON.parse(await file.text()); } catch { return flash($('srcMsg'), 'ng', '✘ 백업 파일을 읽을 수 없습니다.'); }
+  if (b?.app !== 'cliplab-backup' || typeof b.data !== 'object') return flash($('srcMsg'), 'ng', '✘ CLIPLAB 전체 백업 파일이 아닙니다.');
+  const keysIn = Object.keys(b.data).filter(isBigKey), hist = Array.isArray(b.data[HIST_KEY]) ? b.data[HIST_KEY] : [];
+  if (!confirm(`${localTime(b.createdAt)} 백업에서 히스토리 ${hist.length}개 · 영상 기록 ${keysIn.filter(k => k !== HIST_KEY).length}개 · 설정을 되살립니다.\n같은 영상의 기록은 백업 내용으로 바뀌고, 히스토리는 지금 목록과 합칩니다. 계속할까요?`)) return;
+  const fails = [];
+  for (const k of keysIn) {
+    if (k === HIST_KEY) continue;
+    const ok = await bigStore.set(k, b.data[k]);
+    if (ok !== true) fails.push(ok);
+  }
+  const merged = [...hist, ...history.filter(h => !hist.some(x => x.hid === h.hid))].sort((x, y) => y.date - x.date);
+  const ok = await bigStore.set(HIST_KEY, merged);
+  if (ok !== true) fails.push(ok);
+  if (b.settings) { applySettings({ ...b.settings, keys: undefined }); saveSettings(); }
+  if (b.cc) store.set('cliplab-cc', b.cc);
+  if (fails.length) return flash($('srcMsg'), 'ng', '✘ 일부를 되살리지 못했습니다: ' + fails[0]);
+  flash($('srcMsg'), 'ok', '✔ 백업을 되살렸습니다. 잠시 뒤 화면을 새로 고칩니다.');
+  setTimeout(() => location.reload(), 900);
 };
 
 // ---------- 노트 내보내기: TXT · MD · HWPX ----------
@@ -2709,6 +2876,8 @@ ${rows.map((row, r) => `<hp:tr>${row.map((t, c) => cell(t, c, r, isHead(r, c), W
   const quizzes = rec.quizzes.filter(qValid);
   const quizParas = quizzes.flatMap((q, i) => {
     const r = prog.results[q.id];
+    if (q.type === 'info') return [para(run(`■ 설명 카드 `, 9) + run(q.q) + run(`  [${fmt(q.t)}]`)), ...(q.explanation ? q.explanation.split('\n').map(l => para(run(l), 25)) : []),
+      ...(q.answer ? [para(run(`참고 링크: ${q.answer}`), 25)] : []), empty()];
     const showKey = !STUDENT || isDone(q);
     return [
       para(run(`Q${i + 1}. `, 9) + run(q.q) + run(`  [${fmt(q.t)} · ${TYPES[q.type]}]`)),
@@ -2805,6 +2974,7 @@ function openEnd() {
     : `<p class="glass-ok rounded-2xl px-3 py-2 text-xs">${s.graded.length ? '✔ 모든 퀴즈를 첫 시도에 맞혔어요. 다시 볼 구간이 없습니다.' : '✔ 다시 볼 구간이 없습니다.'}</p>`;
   $('emNoteCount').textContent = `— ${notes.length}개`;
   $('emSubmit').classList.toggle('hidden', !STUDENT);
+  $('emCode').classList.toggle('hidden', !STUDENT);
   $('endModal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
@@ -2819,6 +2989,7 @@ $('endModal').addEventListener('click', e => {
   else if (act === 'md') $('exMd').click();
   else if (act === 'hwpx') $('exHwpx').click();
   else if (act === 'submit') $('stuSubmit').click();
+  else if (act === 'code') $('stuCode').click();
   else if (act === 'restart') { closeEnd(); seekTo(0); lastT = 0; endShown = false; player.play(); }
 });
 // 교수: 마무리 카드에 보일 핵심 요약
@@ -2893,6 +3064,7 @@ $('asrBtn').onclick = async () => {
     }
     if (!cues.length) throw new Error('인식된 말소리가 없습니다.');
     cues.forEach((c, i) => { if (!c.e || c.e <= c.s) c.e = cues[i + 1]?.s ?? c.s + 4; });
+    cues = mergeFragments(cues);
     rec.cues = cues; rec.approx = false; rec.tr = null;
     $('subText').value = cues.map((c, i) => `${i + 1}\n${srtTime(c.s)} --> ${srtTime(c.e)}\n${c.text}\n`).join('\n');
     persist(); renderCues(); renderSubInfo();
@@ -2986,21 +3158,34 @@ $('bankImport').onchange = async e => {
 // ---------- 성적 집계: 학생 제출 파일 여러 개 ----------
 let gbFiles = [], gbVid = null;
 const localTime = iso => { const d = new Date(iso); return isNaN(d) ? '' : `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+function addResult(d, src) {
+  if (d?.app !== 'cliplab-result' || !d.student) return false;
+  const { sig, ...rest } = d;
+  d.tampered = hash(JSON.stringify(rest) + '|cliplab') !== sig;
+  d.file = src;
+  gbFiles.push(d);
+  return true;
+}
+function gbImported(added, skipped, what) {
+  $('gbNote').textContent = `${added}개 불러옴${skipped ? ` · ${skipped}개는 CLIPLAB ${what}이 아니라 건너뜀` : ''}`;
+  if (added) { gbVid = gbFiles.at(-1).vid; renderGradebook(); $('gradebook').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
 async function importResults(files) {
   let added = 0, skipped = 0;
   for (const f of files) {
-    try {
-      const d = JSON.parse(await f.text());
-      if (d?.app !== 'cliplab-result' || !d.student) { skipped++; continue; }
-      const { sig, ...rest } = d;
-      d.tampered = hash(JSON.stringify(rest) + '|cliplab') !== sig;
-      d.file = f.name;
-      gbFiles.push(d); added++;
-    } catch { skipped++; }
+    try { addResult(JSON.parse(await f.text()), f.name) ? added++ : skipped++; } catch { skipped++; }
   }
-  $('gbNote').textContent = `${added}개 불러옴${skipped ? ` · ${skipped}개는 CLIPLAB 제출 파일이 아니라 건너뜀` : ''}`;
-  if (added) { gbVid = gbFiles.at(-1).vid; renderGradebook(); $('gradebook').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  gbImported(added, skipped, '제출 파일');
 }
+// 결과 코드: 붙여넣은 글에서 CLR1.… 만 골라 읽음
+$('gbCodeBtn').onclick = async () => {
+  const codes = [...$('gbCodes').value.matchAll(/CLR1\.([zj])\.([\w-]+)/g)];
+  if (!codes.length) return ($('gbNote').textContent = '결과 코드(CLR1.…)를 찾지 못했습니다.');
+  let added = 0, skipped = 0;
+  for (const m of codes) { try { addResult(await unpackShare([m[1], m[2]]), '결과 코드') ? added++ : skipped++; } catch { skipped++; } }
+  if (added) $('gbCodes').value = '';
+  gbImported(added, skipped, '결과 코드');
+};
 $('gbFiles').onchange = e => { importResults([...e.target.files]); e.target.value = ''; };
 dropZone($('gbDrop'), importResults);
 function gbRows() {
@@ -3014,8 +3199,16 @@ function gbAgg() {
   const n = rows.length, avg = f => n ? rows.reduce((a, r) => a + f(r), 0) / n : 0;
   const quizMap = new Map();
   rows.forEach(r => (r.quizzes || []).forEach(q => {
-    const m = quizMap.get(q.id) || quizMap.set(q.id, { id: q.id, t: q.t, type: q.type, q: q.q, n: 0, ok: 0, tries: 0, answered: 0, texts: [] }).get(q.id);
+    const m = quizMap.get(q.id) || quizMap.set(q.id, { id: q.id, t: q.t, type: q.type, q: q.q, n: 0, ok: 0, tries: 0, answered: 0, texts: [], seen: 0, dist: new Map(), firstN: 0, options: q.options, key: q.key }).get(q.id);
     m.n++; if (q.firstCorrect) m.ok++; m.tries += q.attempts || 0;
+    if (q.correct || q.passed) m.seen++;
+    // 처음 고른 답 분포
+    if (q.first != null && q.first !== '') {
+      const k = Array.isArray(q.first) ? [...q.first].sort((a, b) => a - b).join(',') : q.type === 'short' ? norm(q.first) || String(q.first) : String(q.first);
+      m.dist.set(k, (m.dist.get(k) || 0) + 1); m.firstN++;
+      if (q.type === 'short' && !m.label) m.label = {};
+      if (q.type === 'short') m.label[k] = m.label[k] || String(q.first);
+    }
     if (q.type === 'essay' && q.text) { m.answered++; m.texts.push({ who: `${r.student.name}(${r.student.sid})`, text: q.text }); }
   }));
   // 30초 구간별: 다시 본 학생·반복 횟수 / "이해 안 됨" 표시
@@ -3036,9 +3229,25 @@ function gbAgg() {
     });
   });
   const top = map => [...map.values()].sort((a, b) => b.students - a.students || b.extra - a.extra).slice(0, 6);
-  return { rows, n, avgScore: avg(r => r.score || 0), avgWatch: avg(r => r.watchRatio || 0), avgNotes: avg(r => (r.notes || []).length),
+  const asks = rows.flatMap(r => (r.questions || []).map(x => ({ ...x, who: `${r.student.name}(${r.student.sid})` }))).sort(byT);
+  return { asks, rows, n, avgScore: avg(r => r.score || 0), avgWatch: avg(r => r.watchRatio || 0), avgNotes: avg(r => (r.notes || []).length),
     lateN: rows.filter(r => r.late).length, shortN: rows.filter(r => r.watchOK === false).length, confN: rows.reduce((a, r) => a + (r.confused || []).length, 0),
     quizzes: [...quizMap.values()].sort(byT), rewatch: top(bins), conf: top(conf) };
+}
+// 처음 고른 답 분포: 정답은 초록, 가장 많이 고른 오답은 빨간 테두리
+function distHTML(q) {
+  if (!q.firstN) return '';
+  const pct = c => Math.round(c / q.firstN * 100);
+  let items = [];
+  if (q.type === 'mcq') items = (q.options || []).map((o, j) => ({ k: String(j), label: CIRCLED[j], title: o, right: j === q.key }));
+  else if (q.type === 'ox') items = ['O', 'X'].map(v => ({ k: v, label: v, right: v === q.key }));
+  else if (q.type === 'multi') { const key = (q.key || []).join(','); items = [...q.dist.keys()].map(k => ({ k, label: k.split(',').filter(Boolean).map(j => CIRCLED[j]).join('') || '-', right: k === key })); }
+  else if (q.type === 'short') items = [...q.dist.keys()].map(k => ({ k, label: q.label?.[k] || k, right: [q.key].map(norm).includes(k) }));
+  items = items.map(x => ({ ...x, c: q.dist.get(x.k) || 0 }));
+  if (q.type === 'multi' || q.type === 'short') items = items.sort((a, b) => b.c - a.c).slice(0, 4);
+  const topWrong = items.filter(x => !x.right && x.c).sort((a, b) => b.c - a.c)[0];
+  return `<div class="mt-1.5 flex flex-wrap gap-1" aria-label="처음 고른 답 분포">${items.map(x =>
+    `<span class="dist ${x.right ? 'right' : x === topWrong ? 'top' : ''}" title="${esc(x.title || x.label)}${x.right ? ' (정답)' : ''}">${esc(String(x.label).slice(0, 14))} ${pct(x.c)}%</span>`).join('')}</div>`;
 }
 const gbRemark = r => [r.tampered && '⚠ 변조 의심', r.late && '지각', r.watchOK === false && `시청 미달(<${r.minWatch}%)`].filter(Boolean);
 function renderGradebook() {
@@ -3063,14 +3272,20 @@ function renderGradebook() {
     <td class="px-3 py-2 text-[#9a3027] font-bold">${gbRemark(r).map(esc).join(' · ')}</td></tr>`).join('');
   $('gbTampered').classList.toggle('hidden', !a.rows.some(r => r.tampered));
   $('gbQuestions').innerHTML = a.quizzes.map(q => `<tr class="border-t border-black/[0.06]">
-    <td class="px-3 py-2 font-disp">${fmt(q.t)}</td><td class="px-3 py-2 whitespace-nowrap">${TYPES[q.type] || q.type}</td><td class="px-3 py-2 min-w-[10rem]">${esc(q.q)}</td>
-    <td class="px-3 py-2">${q.type === 'essay' ? `<span class="text-mute">응답 ${q.answered}/${q.n}</span>` : meter(q.n ? q.ok / q.n : 0, q.n && q.ok / q.n < 0.5)}</td><td class="px-3 py-2 text-center font-disp">${q.n && q.type !== 'essay' ? (q.tries / q.n).toFixed(1) : '-'}</td></tr>`).join('')
+    <td class="px-3 py-2 font-disp">${fmt(q.t)}</td><td class="px-3 py-2 whitespace-nowrap">${TYPES[q.type] || q.type}</td><td class="px-3 py-2 min-w-[12rem]">${esc(q.q)}${distHTML(q)}</td>
+    <td class="px-3 py-2">${q.type === 'info' ? `<span class="text-mute">확인 ${q.seen}/${q.n}</span>` : q.type === 'essay' ? `<span class="text-mute">응답 ${q.answered}/${q.n}</span>` : meter(q.n ? q.ok / q.n : 0, q.n && q.ok / q.n < 0.5)}</td><td class="px-3 py-2 text-center font-disp">${q.n && q.type !== 'essay' ? (q.tries / q.n).toFixed(1) : '-'}</td></tr>`).join('')
     || '<tr><td colspan="5" class="px-3 py-4 text-center text-mute">퀴즈 기록이 없습니다.</td></tr>';
   const binRow = (b, extraCol = '') => `<tr class="border-t border-black/[0.06]">
     <td class="px-3 py-2 font-disp whitespace-nowrap">${fmt(b.b * 30)} – ${fmt(b.b * 30 + 30)}</td><td class="px-3 py-2 text-center font-disp">${b.students}명</td><td class="px-3 py-2 text-center font-disp">${b.extra}</td>${extraCol}</tr>`;
   $('gbRewatch').innerHTML = a.rewatch.map(b => binRow(b)).join('') || '<tr><td colspan="3" class="px-3 py-4 text-center text-mute">다시 본 구간이 없습니다.</td></tr>';
   $('gbConf').innerHTML = a.conf.map(b => binRow(b, `<td class="px-3 py-2 text-center">${rec?.vid === gbVid ? `<button type="button" class="icon-btn" data-gb-seek="${b.b * 30}" aria-label="${fmt(b.b * 30)}로 이동">▶</button>` : '-'}</td>`)).join('')
     || '<tr><td colspan="4" class="px-3 py-4 text-center text-mute">"이해 안 됨" 표시가 없습니다.</td></tr>';
+  // 학생 질문
+  $('gbAskWrap').classList.toggle('hidden', !a.asks.length);
+  $('gbAskCount').textContent = `— ${a.asks.length}개`;
+  $('gbAsk').innerHTML = a.asks.map(x => `<li class="flex items-start gap-2 text-xs leading-relaxed">
+    ${rec?.vid === gbVid ? `<button type="button" class="tchip" data-gb-seek="${x.t}" aria-label="${fmt(x.t)}로 이동">${fmt(x.t)}</button>` : `<span class="tchip">${fmt(x.t)}</span>`}
+    <span class="min-w-0 break-words"><b class="mr-1">${esc(x.who)}</b>${esc(x.text)}</span></li>`).join('');
   // 서술형 답변
   const essays = a.quizzes.filter(q => q.type === 'essay');
   $('gbEssayWrap').classList.toggle('hidden', !essays.length);
@@ -3078,6 +3293,23 @@ function renderGradebook() {
     <p class="text-xs font-bold"><span class="font-disp text-mute mr-1">${fmt(q.t)}</span>${esc(q.q)} <span class="font-normal text-mute">— 응답 ${q.answered}명</span></p>
     <ul class="space-y-1.5 max-h-[16rem] overflow-y-auto pr-1">${q.texts.map(x => `<li class="sunk rounded-xl px-3 py-2 text-xs leading-relaxed"><b class="mr-1">${esc(x.who)}</b>${esc(x.text)}</li>`).join('') || '<li class="text-xs text-mute">응답이 없습니다.</li>'}</ul></div>`).join('');
 }
+$('gbAsk').addEventListener('click', e => { const b = e.target.closest('[data-gb-seek]'); if (b) { seekTo(+b.dataset.gbSeek); $('stage').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
+$('gbAskAi').onclick = async () => {
+  if (!keys[provider].trim()) return flash($('gbAskMsg'), 'ng', `✘ AI SETTING에 ${PROVIDERS[provider].name} API 키를 입력하세요.`);
+  const asks = gbAgg().asks;
+  if (!asks.length) return flash($('gbAskMsg'), 'info', '요약할 질문이 없습니다.');
+  setBusy($('gbAskAi'), true, '요약 중…');
+  try {
+    const data = await aiJSON(`대학 강의 영상을 본 학생들이 특정 시점에 남긴 질문입니다. 비슷한 질문끼리 묶어 주제별로 정리하고, 주제마다 관련 시점(분:초)과 질문 수, 다음 수업에서 답해 줄 핵심을 한국어로 짧게 쓰세요. 학생 이름은 쓰지 마세요.
+다른 설명 없이 JSON만 출력하세요: {"groups":[{"topic":"","times":"","count":0,"answer":""}]}
+
+${asks.map(x => `[${fmt(x.t)}] ${x.text.slice(0, 300)}`).join('\n').slice(0, 20000)}`);
+    const g = (data.groups || []).filter(x => x && x.topic);
+    if (!g.length) throw new Error('요약을 받지 못했습니다.');
+    flash($('gbAskMsg'), 'ok', g.map(x => `■ ${x.topic} (${x.count || '?'}개 · ${x.times || ''})\n${x.answer || ''}`).join('\n\n'));
+  } catch (err) { flash($('gbAskMsg'), 'ng', '✘ AI 요약 실패: ' + err.message); }
+  finally { setBusy($('gbAskAi'), false); }
+};
 $('gbConf').addEventListener('click', e => { const b = e.target.closest('[data-gb-seek]'); if (b) { seekTo(+b.dataset.gbSeek); $('stage').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
 $('gbEssayAi').onclick = async () => {
   if (!keys[provider].trim()) return flash($('gbEssayMsg'), 'ng', `✘ AI SETTING에 ${PROVIDERS[provider].name} API 키를 입력하세요.`);
@@ -3109,6 +3341,8 @@ $('gbCsv').onclick = () => {
     ...a.quizzes.map(x => [fmt(x.t), TYPES[x.type], x.q, x.type === 'essay' ? `응답 ${x.answered}/${x.n}` : x.n ? Math.round(x.ok / x.n * 100) : 0, x.n && x.type !== 'essay' ? (x.tries / x.n).toFixed(1) : ''].map(q).join(',')),
     '', ['다시 본 구간', '다시 본 학생 수', '반복 횟수'].map(q).join(','),
     ...a.rewatch.map(b => [`${fmt(b.b * 30)}-${fmt(b.b * 30 + 30)}`, b.students, b.extra].map(q).join(',')),
+    '', ['질문 시각', '학생', '질문'].map(q).join(','),
+    ...a.asks.map(x => [fmt(x.t), x.who, x.text].map(q).join(',')),
     '', ['이해 안 됨 구간', '표시한 학생 수', '표시 수'].map(q).join(','),
     ...a.conf.map(b => [`${fmt(b.b * 30)}-${fmt(b.b * 30 + 30)}`, b.students, b.extra].map(q).join(',')),
     ...a.quizzes.filter(x => x.type === 'essay').flatMap(x => ['', [`서술형 ${fmt(x.t)}`, x.q].map(q).join(','), ...x.texts.map(t => [t.who, t.text].map(q).join(','))])
