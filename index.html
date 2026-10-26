@@ -627,7 +627,7 @@
       <div class="space-y-3">
         <div class="sec-head">📝 SUBTITLE · AI <small>—— 자막으로 퀴즈·챕터 자동 생성</small></div>
         <p class="text-xs font-bold leading-relaxed text-[#d0544a]">Youtube Subtitle Builder에서 자막을 추출하세요<br>
-          다운로드: <a href="https://shorturl.at/wQmNY" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 break-all rounded">https://shorturl.at/wQmNY</a></p>
+          다운로드: <a href="https://shorturl.at/RIMEv" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 break-all rounded">https://shorturl.at/RIMEv</a></p>
         <label id="subDrop" class="drop flex items-center justify-center gap-3 py-4 rounded-2xl glass cursor-pointer text-center px-4">
           <svg viewBox="0 0 48 48" class="w-8 h-8 shrink-0" fill="none" stroke="#3a3a3f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 6h17l9 9v27H12z" fill="#fff"/><path d="M29 6v9h9"/><path d="M18 26h12M18 32h8"/></svg>
@@ -880,6 +880,8 @@
 
 <script id="appMain">
 // 화면·저장 파일에 표시되는 앱 버전. 수정할 때마다 올림: 새 기능 → 둘째 자리, 고침·디자인 → 셋째 자리
+// v1.8.3  모델 목록 최신화(Gemini 4 Argon·3.8 Flash 등, GPT-6 계열, Claude Fable 5.1), 종료된 예전 기본 모델 자동 교체
+// v1.8.2  Youtube Subtitle Builder 다운로드 링크 교체(RIMEv)
 // v1.8.1  히스토리가 안 보이던 문제: 저장이 막힌 화면 안내·메모리 백업/복원, 시작 직후 저장 시 빈 목록으로 덮어쓰기 방지
 // v1.8.0  결과 코드 제출·코드 집계, 처음 고른 답 분포, 시점별 학생 질문, 설명 카드(■), 전체 백업·복원, 끊긴 자막 조각 한 줄로 합치기
 // v1.7.0  Share = 온라인 공유 링크(앱 웹 주소 + 압축 데이터, 열면 학생 시청 모드), 히스토리·영상 기록을 IndexedDB에 저장해 용량 초과 저장 오류 해결
@@ -899,7 +901,7 @@
 // v1.2.0  STEP 3 편집 모드/시청 모드, 퀴즈 4유형·힌트·통과 조건, 건너뛰기 막기, 자막 표시·검색, AI 요약·챕터, 속도·구간 반복·단축키
 // v1.1.0  STEP 2 AI 연결(Claude·OpenAI·Gemini, 연결 확인·모델 제안), 자막 기반 AI 퀴즈 배치, 키·강의 정보 저장, 접기·펼치기
 // v1.0.0  STEP 1 기본 골격: 유튜브·영상 파일 재생, 팝업 퀴즈, 타임스탬프 노트, 구간 북마크 바, 샘플 데이터
-const APP_VERSION = 'v1.8.1';
+const APP_VERSION = 'v1.8.3';
 const APP_NAME = '10 인터랙티브 학습용 동영상 플레이어';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -931,15 +933,22 @@ document.body.prepend($('appTpl').content.cloneNode(true));
 
 const PROVIDERS = {
   claude: { name: 'Claude', model: 'claude-sonnet-5-5', placeholder: 'sk-ant-...' },
-  openai: { name: 'OpenAI', model: 'gpt-4.1', placeholder: 'sk-...' },
-  gemini: { name: 'Gemini', model: 'gemini-2.5-flash', placeholder: 'AIza...' }
+  openai: { name: 'OpenAI', model: 'gpt-6.1-sol', placeholder: 'sk-...' },
+  gemini: { name: 'Gemini', model: 'gemini-3.8-flash', placeholder: 'AIza...' }
 };
-// 모델 빠른 선택: [모델 ID, 설명]. 목록에 없는 모델도 직접 입력 가능
+// 모델 빠른 선택: [모델 ID, 설명]. 2026-10 각 제공자 공식 모델 목록 기준 (종료·종료 예정 모델은 뺌)
+// 목록에 없는 모델도 직접 입력 가능하고, "연결 확인"이 그 키로 쓸 수 있는 모델을 제안함
 const MODEL_PRESETS = {
-  claude: [['claude-opus-5-5', '최고 성능'], ['claude-sonnet-5-5', '균형'], ['claude-haiku-5-5', '빠름·저렴']],
-  openai: [['gpt-5', '최고 성능'], ['gpt-5-mini', '균형'], ['gpt-5-nano', '빠름·저렴'], ['gpt-4.1', '안정'], ['gpt-4.1-mini', '빠름'], ['gpt-4o', '범용'], ['gpt-4o-mini', '저렴'], ['o3', '추론'], ['o4-mini', '추론·빠름']],
-  gemini: [['gemini-2.5-pro', '최고 성능'], ['gemini-2.5-flash', '균형'], ['gemini-2.5-flash-lite', '빠름·저렴']]
+  claude: [['claude-fable-5-1', '최고 추론'], ['claude-opus-5-5', '고성능'], ['claude-sonnet-5-5', '균형'], ['claude-haiku-5-5', '빠름·저렴'],
+    ['claude-opus-5', '이전 세대'], ['claude-sonnet-5', '이전 세대']],
+  openai: [['gpt-6-astra', '최고 성능'], ['gpt-6.1-sol', '균형'], ['gpt-6-sol', '균형'], ['gpt-6-luna', '빠름·저렴'],
+    ['gpt-5.6-sol', '이전 세대'], ['gpt-5.6-terra', '이전 세대'], ['gpt-5.6-luna', '이전·저렴'], ['gpt-5.5', '이전 세대'], ['gpt-5.4-mini', '소형·저렴']],
+  gemini: [['gemini-4-argon', '최신 최고 성능'], ['gemini-3.8-flash', '균형'], ['gemini-3.6-flash', '빠름'], ['gemini-3.5-flash-lite', '빠름·저렴'],
+    ['gemini-3.1-pro-preview', '고성능 미리보기'], ['gemini-3-flash-preview', '미리보기'], ['gemini-3.1-flash-lite', '가벼움'], ['gemini-flash-latest', '최신 Flash 자동']]
 };
+// 예전 기본값(종료·사용 제한)으로 저장된 설정은 새 기본 모델로 바꿈
+const RETIRED_MODELS = { openai: ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4o', 'gpt-4o-mini', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano', 'o3', 'o4-mini'],
+  gemini: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'] };
 const keys = { claude: '', openai: '', gemini: '' };
 const models = Object.fromEntries(Object.entries(PROVIDERS).map(([k, p]) => [k, p.model]));
 let provider = 'claude';
@@ -1008,7 +1017,7 @@ const bigStore = {
 function applySettings(s) {
   if (!s || typeof s !== 'object') return;
   for (const k in keys) if (typeof s.keys?.[k] === 'string') keys[k] = s.keys[k];
-  for (const k in models) if (typeof s.models?.[k] === 'string') models[k] = s.models[k];
+  for (const k in models) if (typeof s.models?.[k] === 'string') models[k] = RETIRED_MODELS[k]?.includes(s.models[k]) ? PROVIDERS[k].model : s.models[k];
   if (PROVIDERS[s.provider]) provider = s.provider;
   for (const k in course) if (typeof s.course?.[k] === 'string') course[k] = s.course[k];
   for (const k in collapsed) if (typeof s.collapsed?.[k] === 'boolean') collapsed[k] = s.collapsed[k];
@@ -2193,7 +2202,7 @@ const LISTERS = {
     .data?.map(m => m.id).filter(id => /^(gpt|o\d|chatgpt)/.test(id)) || [],
   gemini: async key => (await getJSON('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { 'x-goog-api-key': key }))
     .models?.filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
-    .map(m => m.name.replace(/^models\//, '')).filter(id => !/tts|image|audio|live|embedding|robotics|computer-use/.test(id)) || []
+    .map(m => m.name.replace(/^models\//, '')).filter(id => !/tts|image|audio|live|embedding|robotics|computer-use|transcribe|lyria|banana|omni|deep-research|antigravity/.test(id)) || []
 };
 function fillModelList(ids) { $('modelList').innerHTML = [...new Set(ids)].map(id => `<option value="${esc(id)}"></option>`).join(''); }
 function setCheckStatus(kind, msg) {
