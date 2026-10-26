@@ -417,6 +417,7 @@
         <div class="flex flex-wrap items-center gap-2">
           <button id="backupBtn" type="button" class="pill px-3 py-1.5 text-[11px]" title="히스토리·영상별 퀴즈·노트·자막·설정을 한 파일로 (API 키 제외)">💾 전체 백업 ↓</button>
           <label class="pill px-3 py-1.5 text-[11px]" title="전체 백업 파일에서 되살리기">백업 복원 ↑<input id="restoreFile" type="file" accept=".json,application/json" class="sr-only"></label>
+          <button id="resetAll" type="button" class="pill pill-danger px-3 py-1.5 text-[11px]" title="이 브라우저에 저장된 CLIPLAB 데이터를 모두 지우고 처음 상태로">🗑 전체 초기화</button>
           <span class="text-[11px] text-mute">다른 컴퓨터로 옮기거나 브라우저 데이터를 지우기 전에 보관하세요.</span>
         </div>
       </div>
@@ -951,6 +952,7 @@
 
 <script id="appMain">
 // 화면·저장 파일에 표시되는 앱 버전. 수정할 때마다 올림: 새 기능 → 둘째 자리, 고침·디자인 → 셋째 자리
+// v1.9.1  전체 초기화(백업 권유·"초기화" 입력 확인 후 히스토리·영상 기록·설정·API 키·학생 기록 삭제)
 // v1.9.0  핵심 표시(영상 위 모션 그래픽 오버레이: 아래 띠·가운데 카드·위 배너·모서리 태그, AI 추출), 자막 위치(하단·중앙·상단·영상 밖 아래)
 // v1.8.4  자막 번역은 AI SETTING의 키·모델을 그대로 사용(빠른 모델은 선택), IndexedDB가 응답하지 않으면 3초 뒤 localStorage로 넘어가 앱이 멈추지 않게 함 · 자막 번역 개선: 20문장 묶음 3개 동시 요청, 90초 제한·2번 재시도, 문장 수·경과 시간 진행 표시, 번역 멈추기·이어서 번역, 번역용 빠른 모델
 // v1.8.3  모델 목록 최신화(Gemini 4 Argon·3.8 Flash 등, GPT-6 계열, Claude Fable 5.1), 종료된 예전 기본 모델 자동 교체
@@ -974,7 +976,7 @@
 // v1.2.0  STEP 3 편집 모드/시청 모드, 퀴즈 4유형·힌트·통과 조건, 건너뛰기 막기, 자막 표시·검색, AI 요약·챕터, 속도·구간 반복·단축키
 // v1.1.0  STEP 2 AI 연결(Claude·OpenAI·Gemini, 연결 확인·모델 제안), 자막 기반 AI 퀴즈 배치, 키·강의 정보 저장, 접기·펼치기
 // v1.0.0  STEP 1 기본 골격: 유튜브·영상 파일 재생, 팝업 퀴즈, 타임스탬프 노트, 구간 북마크 바, 샘플 데이터
-const APP_VERSION = 'v1.9.0';
+const APP_VERSION = 'v1.9.1';
 const APP_NAME = '10 인터랙티브 학습용 동영상 플레이어';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1208,10 +1210,11 @@ const result = q => prog.results[q.id] || (prog.results[q.id] = { attempts: 0, f
 const isDone = q => !!(prog.results[q.id]?.correct || prog.results[q.id]?.passed);
 
 let saveTimer = null;
+let resetting = false; // 전체 초기화 중에는 다시 저장하지 않음
 function persist() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
-    if (!rec) return;
+    if (!rec || resetting) return;
     rec.updated = Date.now();
     const ok = STUDENT ? store.set(stuKey(), prog) : await bigStore.set('cliplab-video:' + rec.vid, rec);
     $('saveState').textContent = ok === true ? `· ✔ 자동 저장 ${new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}` : `· ⚠ 저장 실패: ${ok || '브라우저 저장이 막혀 새로고침하면 지워집니다'}`;
@@ -3092,6 +3095,27 @@ $('backupBtn').onclick = async () => {
   download(JSON.stringify({ app: 'cliplab-backup', version: 1, appVersion: APP_VERSION, createdAt: new Date().toISOString(), settings, cc: store.get('cliplab-cc', {}), data }),
     'CLIPLAB_전체백업', 'json', 'application/json');
   flash($('srcMsg'), 'ok', `✔ 전체 백업을 저장했습니다. (히스토리 ${(data[HIST_KEY] || []).length}개 · 영상 기록 ${videos}개 · 설정, API 키 제외)`);
+};
+// ---------- 전체 초기화: 이 브라우저의 CLIPLAB 데이터(히스토리·영상 기록·설정·API 키·학생 기록) 모두 삭제 ----------
+$('resetAll').onclick = async () => {
+  if (!confirm('⚠ 전체 초기화\n\n이 브라우저에 저장된 CLIPLAB 데이터를 모두 지웁니다.\n· VIDEO HISTORY\n· 영상별 퀴즈·북마크·핵심 표시·노트·자막·번역\n· 강의 정보·AI 설정(API 키 포함)·화면 설정\n· 학생 시청 기록\n\n지운 뒤에는 되돌릴 수 없습니다. 계속할까요?')) return;
+  if (confirm('지우기 전에 전체 백업 파일을 먼저 내려받을까요?\n(확인 = 백업 내려받고 계속 · 취소 = 백업 없이 계속)')) await $('backupBtn').onclick();
+  const typed = prompt('정말 모두 지우려면 아래 칸에 "초기화"라고 입력하세요.');
+  if (typed?.trim() !== '초기화') return flash($('srcMsg'), 'info', '전체 초기화를 취소했습니다. 아무것도 지우지 않았습니다.');
+  resetting = true;
+  clearTimeout(saveTimer);
+  player.pause();
+  let keysIdb = [];
+  try { keysIdb = await idb.keys(); } catch {}
+  for (const k of keysIdb) { try { await idb.del(k); } catch {} }
+  try {
+    const ls = [];
+    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^(__)?cliplab/.test(k)) ls.push(k); }
+    ls.forEach(k => localStorage.removeItem(k));
+  } catch {}
+  try { sessionStorage.clear(); } catch {}
+  flash($('srcMsg'), 'ok', '✔ 전체 초기화를 마쳤습니다. 처음 상태로 다시 엽니다.');
+  setTimeout(() => location.replace(location.pathname + location.search), 700);
 };
 $('restoreFile').onchange = async e => {
   const file = e.target.files[0];
