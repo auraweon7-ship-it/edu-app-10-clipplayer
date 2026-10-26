@@ -254,6 +254,52 @@
 
 <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
 
+  <!-- AI 설정 (맨 위) -->
+  <section id="aiSec" class="space-y-4">
+    <button type="button" class="sec-head sec-toggle w-full text-left" aria-expanded="true" aria-controls="body-ai" data-collapse="ai">
+      🔑 AI SETTING <small>—— 제공자 · 키 · 모델</small>
+      <span class="ml-auto flex items-center gap-2 min-w-0"><span class="sec-sum" id="sum-ai"></span><span class="chev" aria-hidden="true"></span></span>
+    </button>
+    <div id="body-ai" class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1.2fr)] items-start">
+      <div>
+      <span class="block text-xs font-bold mb-1.5">제공자</span>
+      <div class="grid grid-cols-3 gap-2">
+        <label class="chip cursor-pointer"><input type="radio" name="provider" value="claude" class="sr-only" checked>
+          <span class="block text-center rounded-full glass-chip py-2 text-sm font-medium transition">Claude</span></label>
+        <label class="chip cursor-pointer"><input type="radio" name="provider" value="openai" class="sr-only">
+          <span class="block text-center rounded-full glass-chip py-2 text-sm font-medium transition">OpenAI</span></label>
+        <label class="chip cursor-pointer"><input type="radio" name="provider" value="gemini" class="sr-only">
+          <span class="block text-center rounded-full glass-chip py-2 text-sm font-medium transition">Gemini</span></label>
+      </div>
+      </div>
+      <div>
+        <label for="apiKey" class="block text-xs font-bold mb-1.5"><span id="keyLabel">Claude</span> API 키 <span class="font-normal text-mute">(AI 기능에 필요)</span></label>
+        <div class="flex gap-2">
+          <input id="apiKey" type="password" autocomplete="off" class="field flex-1">
+          <button id="toggleKey" type="button" class="pill px-4 text-xs">보기</button>
+        </div>
+        <div class="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <label class="inline-flex items-center gap-2 text-xs font-medium cursor-pointer">
+            <input id="rememberKey" type="checkbox" class="switch" checked>
+            <span>이 브라우저에 키 저장 <span class="text-mute">(끄면 새로고침 시 지워짐)</span></span>
+          </label>
+          <button id="forgetKeys" type="button" class="text-[11px] underline underline-offset-4 text-mute hover:text-[#d0544a] shrink-0">저장된 키 삭제</button>
+        </div>
+        <p id="keyNote" class="mt-1 text-[11px] text-mute">키는 이 기기의 브라우저에만 저장되고 선택한 제공자 API로만 전송됩니다. 공용 PC에서는 저장을 끄세요.</p>
+      </div>
+      <div>
+        <label for="model" class="block text-xs font-bold mb-1.5">모델</label>
+        <div class="flex gap-2">
+          <input id="model" type="text" autocomplete="off" list="modelList" class="field flex-1 font-disp">
+          <datalist id="modelList"></datalist>
+          <button id="checkBtn" type="button" class="pill px-4 text-xs whitespace-nowrap">연결 확인</button>
+        </div>
+        <div id="modelPicks" class="mt-2 flex flex-wrap gap-1.5" role="group" aria-label="모델 빠른 선택"></div>
+        <div id="checkStatus" class="hidden mt-2 rounded-2xl px-3 py-2 text-xs" role="status"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- 영상 불러오기 + 히스토리 -->
   <section id="sourceSec" class="space-y-4">
     <div class="sec-head">🎬 VIDEO SOURCE <small>—— 유튜브 URL · 내 컴퓨터 영상 파일(.mp4 · .webm)</small></div>
@@ -414,48 +460,6 @@
   <!-- 교수용 설정 · 편집 -->
   <div id="setup" class="grid gap-8 lg:grid-cols-2 items-start">
     <section class="space-y-8 min-w-0">
-      <!-- AI 설정 -->
-      <div class="space-y-4">
-        <button type="button" class="sec-head sec-toggle w-full text-left" aria-expanded="true" aria-controls="body-ai" data-collapse="ai">
-          🔑 AI SETTING <small>—— 제공자 · 키 · 모델</small>
-          <span class="ml-auto flex items-center gap-2 min-w-0"><span class="sec-sum" id="sum-ai"></span><span class="chev" aria-hidden="true"></span></span>
-        </button>
-        <div id="body-ai" class="space-y-4">
-          <div class="grid grid-cols-3 gap-2">
-            <label class="chip cursor-pointer"><input type="radio" name="provider" value="claude" class="sr-only" checked>
-              <span class="block text-center rounded-full glass-chip py-2 text-sm font-medium transition">Claude</span></label>
-            <label class="chip cursor-pointer"><input type="radio" name="provider" value="openai" class="sr-only">
-              <span class="block text-center rounded-full glass-chip py-2 text-sm font-medium transition">OpenAI</span></label>
-            <label class="chip cursor-pointer"><input type="radio" name="provider" value="gemini" class="sr-only">
-              <span class="block text-center rounded-full glass-chip py-2 text-sm font-medium transition">Gemini</span></label>
-          </div>
-          <div>
-            <label for="apiKey" class="block text-xs font-bold mb-1.5"><span id="keyLabel">Claude</span> API 키 <span class="font-normal text-mute">(AI 기능에 필요)</span></label>
-            <div class="flex gap-2">
-              <input id="apiKey" type="password" autocomplete="off" class="field flex-1">
-              <button id="toggleKey" type="button" class="pill px-4 text-xs">보기</button>
-            </div>
-            <div class="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-              <label class="inline-flex items-center gap-2 text-xs font-medium cursor-pointer">
-                <input id="rememberKey" type="checkbox" class="switch" checked>
-                <span>이 브라우저에 키 저장 <span class="text-mute">(끄면 새로고침 시 지워짐)</span></span>
-              </label>
-              <button id="forgetKeys" type="button" class="text-[11px] underline underline-offset-4 text-mute hover:text-[#d0544a] shrink-0">저장된 키 삭제</button>
-            </div>
-            <p id="keyNote" class="mt-1 text-[11px] text-mute">키는 이 기기의 브라우저에만 저장되고 선택한 제공자 API로만 전송됩니다. 공용 PC에서는 저장을 끄세요.</p>
-          </div>
-          <div>
-            <label for="model" class="block text-xs font-bold mb-1.5">모델</label>
-            <div class="flex gap-2">
-              <input id="model" type="text" autocomplete="off" list="modelList" class="field flex-1 font-disp">
-              <datalist id="modelList"></datalist>
-              <button id="checkBtn" type="button" class="pill px-4 text-xs whitespace-nowrap">연결 확인</button>
-            </div>
-            <div id="checkStatus" class="hidden mt-2 rounded-2xl px-3 py-2 text-xs" role="status"></div>
-          </div>
-        </div>
-      </div>
-
       <!-- 강의 정보 -->
       <div class="space-y-3">
         <button type="button" class="sec-head sec-toggle w-full text-left" aria-expanded="true" aria-controls="body-course" data-collapse="course">
@@ -657,13 +661,15 @@
 
 <script id="appMain">
 // 화면·저장 파일에 표시되는 앱 버전. 수정할 때마다 올림: 새 기능 → 둘째 자리, 고침·디자인 → 셋째 자리
+// v1.4.0  모델 빠른 선택 추가(OpenAI GPT-5·GPT-4.1·GPT-4o·o3·o4-mini 등, Claude·Gemini 포함)
+// v1.3.1  AI SETTING을 화면 맨 위로 이동
 // v1.3.0  STEP 5 수업 배포·학습 관리: 학생용 HTML(시청 모드 전용·학생 정보·제출 JSON), 노트 TXT·MD·HWPX,
 //         제출 파일 집계(점수·시청 비율·퀴즈별 정답률·다시 본 구간·CSV), 퀴즈 편집기(AI 한 문항 다시 만들기), VIDEO HISTORY
 // v1.2.1  STEP 4 디자인 통일: 소프트 UI, 눌린 입력칸, pill 버튼, 파란 포커스 링, ◆▲● 표시, 휴대폰 고정 플레이어·바텀 시트
 // v1.2.0  STEP 3 편집 모드/시청 모드, 퀴즈 4유형·힌트·통과 조건, 건너뛰기 막기, 자막 표시·검색, AI 요약·챕터, 속도·구간 반복·단축키
 // v1.1.0  STEP 2 AI 연결(Claude·OpenAI·Gemini, 연결 확인·모델 제안), 자막 기반 AI 퀴즈 배치, 키·강의 정보 저장, 접기·펼치기
 // v1.0.0  STEP 1 기본 골격: 유튜브·영상 파일 재생, 팝업 퀴즈, 타임스탬프 노트, 구간 북마크 바, 샘플 데이터
-const APP_VERSION = 'v1.3.0';
+const APP_VERSION = 'v1.4.0';
 const APP_NAME = '10 인터랙티브 학습용 동영상 플레이어';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -695,6 +701,12 @@ const PROVIDERS = {
   claude: { name: 'Claude', model: 'claude-sonnet-5-5', placeholder: 'sk-ant-...' },
   openai: { name: 'OpenAI', model: 'gpt-4.1', placeholder: 'sk-...' },
   gemini: { name: 'Gemini', model: 'gemini-2.5-flash', placeholder: 'AIza...' }
+};
+// 모델 빠른 선택: [모델 ID, 설명]. 목록에 없는 모델도 직접 입력 가능
+const MODEL_PRESETS = {
+  claude: [['claude-opus-5-5', '최고 성능'], ['claude-sonnet-5-5', '균형'], ['claude-haiku-5-5', '빠름·저렴']],
+  openai: [['gpt-5', '최고 성능'], ['gpt-5-mini', '균형'], ['gpt-5-nano', '빠름·저렴'], ['gpt-4.1', '안정'], ['gpt-4.1-mini', '빠름'], ['gpt-4o', '범용'], ['gpt-4o-mini', '저렴'], ['o3', '추론'], ['o4-mini', '추론·빠름']],
+  gemini: [['gemini-2.5-pro', '최고 성능'], ['gemini-2.5-flash', '균형'], ['gemini-2.5-flash-lite', '빠름·저렴']]
 };
 const keys = { claude: '', openai: '', gemini: '' };
 const models = Object.fromEntries(Object.entries(PROVIDERS).map(([k, p]) => [k, p.model]));
@@ -1657,7 +1669,16 @@ $('toggleKey').onclick = () => {
 };
 function onAIChange() { updateBadge(); $('checkStatus').classList.add('hidden'); renderSummaries(); saveSettings(); }
 $('apiKey').addEventListener('input', () => { keys[provider] = $('apiKey').value; onAIChange(); });
-$('model').addEventListener('input', () => { models[provider] = $('model').value; onAIChange(); });
+$('model').addEventListener('input', () => { models[provider] = $('model').value; onAIChange(); renderModelPicks(); });
+function renderModelPicks() {
+  const cur = $('model').value.trim();
+  $('modelPicks').innerHTML = MODEL_PRESETS[provider].map(([id, desc]) =>
+    `<button type="button" data-pick="${esc(id)}" class="pill ${id === cur ? 'on' : ''} px-2.5 py-1 text-[11px]" aria-pressed="${id === cur}" title="${esc(desc)}"><span class="font-disp">${esc(id)}</span><span class="text-mute">${esc(desc)}</span></button>`).join('');
+}
+$('modelPicks').addEventListener('click', e => {
+  const b = e.target.closest('[data-pick]');
+  if (b) { $('model').value = b.dataset.pick; $('model').dispatchEvent(new Event('input')); }
+});
 $('rememberKey').checked = storedRemember();
 $('rememberKey').addEventListener('change', () => {
   saveSettings();
@@ -1675,7 +1696,8 @@ function selectProvider(p) {
   $('apiKey').placeholder = PROVIDERS[p].placeholder;
   $('model').value = models[p];
   $('keyLabel').textContent = PROVIDERS[p].name;
-  fillModelList([PROVIDERS[p].model]);
+  fillModelList([PROVIDERS[p].model, ...MODEL_PRESETS[p].map(m => m[0])]);
+  renderModelPicks();
 }
 document.querySelectorAll('input[name=provider]').forEach(r => r.addEventListener('change', () => { selectProvider(r.value); onAIChange(); }));
 
@@ -2311,7 +2333,7 @@ selectProvider(provider);
 document.querySelector(`input[name=provider][value=${provider}]`).checked = true;
 updateBadge(); renderSummaries(); renderCourseLine(); showCourseSaved(false);
 if (STUDENT) {
-  ['sourceSec', 'setup', 'gradebook', 'modeTabs', 'aiSummary'].forEach(id => $(id).classList.add('hidden'));
+  ['aiSec', 'sourceSec', 'setup', 'gradebook', 'modeTabs', 'aiSummary'].forEach(id => $(id).classList.add('hidden'));
   $('stuBadge').classList.remove('hidden');
   $('stuCard').classList.remove('hidden');
   openRecord(STUDENT.record);
