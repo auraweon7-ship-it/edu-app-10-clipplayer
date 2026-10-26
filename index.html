@@ -522,7 +522,10 @@
             <span class="flex items-center gap-2"><input id="minWatch" type="number" min="0" max="100" step="5" inputmode="numeric" class="field !py-2 font-disp text-center" placeholder="0"><span class="text-xs font-bold">%</span></span></label>
         </div>
         <p class="text-[11px] text-mute leading-relaxed -mt-1">마감 뒤에 저장한 제출 파일은 <b class="text-ink">지각</b>, 시청 비율이 기준보다 낮으면 <b class="text-ink">시청 미달</b>로 집계에 표시됩니다. 0%는 조건 없음.</p>
-        <button id="stuHtml" type="button" class="pill pill-dark w-full py-3 text-sm">🎓 학생용 HTML 내려받기 ↓</button>
+        <div class="flex gap-2">
+          <button id="stuHtml" type="button" class="pill pill-dark flex-1 min-w-0 py-3 text-sm">🎓 학생용 HTML 내려받기 ↓</button>
+          <button id="stuShare" type="button" class="pill px-5 py-3 text-sm whitespace-nowrap" title="학생용 HTML 파일 또는 웹 주소를 메신저·메일 등으로 공유">🔗 Share</button>
+        </div>
         <p id="deployNote" class="hidden glass-ng rounded-2xl px-3 py-2 text-[11px] leading-relaxed"></p>
         <p class="text-[11px] text-mute leading-relaxed">유튜브 영상은 학생용 HTML을 웹(LMS·GitHub Pages 등)에 올려 열어야 안정적으로 재생됩니다.</p>
         <div class="sunk rounded-[1.4rem] p-3 sm:p-4 space-y-3">
@@ -790,6 +793,8 @@
 
 <script id="appMain">
 // 화면·저장 파일에 표시되는 앱 버전. 수정할 때마다 올림: 새 기능 → 둘째 자리, 고침·디자인 → 셋째 자리
+// v1.5.2  유튜브 "스크립트 표시" 복사 형식(시간 줄·문장 줄 번갈아) 자막 읽기
+// v1.5.1  학생용 HTML 옆 Share 버튼(파일 공유 → 링크 공유 → 링크 복사)
 // v1.5.0  "이해 안 됨" 표시·집계, 영상 파일 자동 자막(Whisper), 시청 마감·최소 시청 비율, 서술형 성찰 질문,
 //         영상 끝 마무리 카드, 영상 위 자막(CC)·전체 화면, 문제 은행 가져오기·내보내기(JSON·CSV), 학생용 링크 QR 코드
 // v1.4.0  모델 빠른 선택 추가(OpenAI GPT-5·GPT-4.1·GPT-4o·o3·o4-mini 등, Claude·Gemini 포함)
@@ -800,7 +805,7 @@
 // v1.2.0  STEP 3 편집 모드/시청 모드, 퀴즈 4유형·힌트·통과 조건, 건너뛰기 막기, 자막 표시·검색, AI 요약·챕터, 속도·구간 반복·단축키
 // v1.1.0  STEP 2 AI 연결(Claude·OpenAI·Gemini, 연결 확인·모델 제안), 자막 기반 AI 퀴즈 배치, 키·강의 정보 저장, 접기·펼치기
 // v1.0.0  STEP 1 기본 골격: 유튜브·영상 파일 재생, 팝업 퀴즈, 타임스탬프 노트, 구간 북마크 바, 샘플 데이터
-const APP_VERSION = 'v1.5.0';
+const APP_VERSION = 'v1.5.2';
 const APP_NAME = '10 인터랙티브 학습용 동영상 플레이어';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1570,7 +1575,18 @@ function parseSubs(text, d) {
   } else {
     const lineRe = /^\[?((?:\d{1,2}:)?\d{1,2}:\d{2})\]?\s*[-–:]?\s*(.+)$/;
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-    if (lines.length && lines.filter(l => lineRe.test(l)).length >= lines.length * 0.6) {
+    // 유튜브 "스크립트 표시" 복사본: 시간 줄 다음에 문장 줄 (새 화면은 "2초" 같은 길이 줄이 끼기도 함)
+    const timeOnly = /^\[?((?:\d{1,2}:)?\d{1,2}:\d{2})\]?$/;
+    const lenLine = /^(\d+\s*(시간|분|초|hours?|minutes?|seconds?),?\s*)+$/i;
+    if (lines.length > 1 && lines.filter(l => timeOnly.test(l)).length >= lines.length * 0.3) {
+      let cur = null;
+      for (const l of lines) {
+        const m = l.match(timeOnly);
+        if (m) { if (cur?.text) cues.push(cur); cur = { s: parseTime(m[1]) || 0, e: 0, text: '' }; }
+        else if (cur && !lenLine.test(l)) cur.text = clean(`${cur.text} ${l}`);
+      }
+      if (cur?.text) cues.push(cur);
+    } else if (lines.length && lines.filter(l => lineRe.test(l)).length >= lines.length * 0.6) {
       cues = lines.filter(l => lineRe.test(l)).map(l => { const m = l.match(lineRe); return { s: parseTime(m[1]) || 0, e: 0, text: clean(m[2]) }; });
     } else {
       // 시간 정보가 없는 대본: 문장으로 나눠 영상 길이에 고르게 배분
@@ -2261,6 +2277,20 @@ function downloadStudentHTML(r) {
   if (r.src.kind === 'file') flash($('deployNote'), 'ng', `⚠ 영상 파일(${r.src.name})은 HTML에 들어가지 않습니다. 학생에게 같은 파일을 따로 나눠 주세요. 학생이 HTML을 열면 그 파일을 직접 불러오도록 안내됩니다.`);
 }
 $('stuHtml').onclick = () => downloadStudentHTML(rec);
+// 공유: 휴대폰 등은 학생용 HTML 파일을 바로 공유, 안 되면 웹 주소 공유 → 주소 복사 → 내려받기 안내
+$('stuShare').onclick = async () => {
+  const title = `${rec.title || '학습 영상'} · 학생용`, text = `${courseText() ? courseText() + ' · ' : ''}${rec.title || '학습 영상'} 시청 과제`;
+  const url = qrUrlOK(rec.deploy.url) ? rec.deploy.url : '';
+  try {
+    const file = new File([buildStudentHTML(rec)], `학생용_${safeName(rec.title)}.html`, { type: 'text/html' });
+    if (navigator.canShare?.({ files: [file] })) { await navigator.share({ title, text, files: [file] }); return flash($('deployNote'), 'ok', '✔ 학생용 HTML 파일을 공유했습니다.'); }
+    if (url && navigator.share) { await navigator.share({ title, text, url }); return flash($('deployNote'), 'ok', '✔ 학생용 링크를 공유했습니다.'); }
+    if (url) { await navigator.clipboard.writeText(`${text}\n${url}`); return flash($('deployNote'), 'ok', '✔ 공유 문구와 학생용 링크를 복사했습니다. 메신저·메일·LMS 공지에 붙여넣으세요.'); }
+    flash($('deployNote'), 'info', '이 브라우저는 HTML 파일을 바로 공유할 수 없습니다. "학생용 HTML 내려받기"로 받아 LMS에 올리고, 그 웹 주소를 아래 QR 칸에 넣으면 Share로 링크를 공유·복사할 수 있습니다.');
+  } catch (err) {
+    if (err.name !== 'AbortError') flash($('deployNote'), 'ng', '✘ 공유하지 못했습니다: ' + err.message);
+  }
+};
 // 시청 마감 · 최소 시청 비율
 $('dueAt').addEventListener('change', () => { rec.deploy.due = $('dueAt').value; persist(); });
 $('minWatch').addEventListener('input', () => { rec.deploy.minWatch = Math.min(100, Math.max(0, Math.round(+$('minWatch').value || 0))); persist(); });
